@@ -1,17 +1,19 @@
-<template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+<template lang="pug">
+  div
+    Collage
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import Collage from '@/components/Collage.vue'
 
-@Component
+@Component({
+  components: {
+    Collage
+    }
+  })
 export default class Home extends Vue {
   
 }
