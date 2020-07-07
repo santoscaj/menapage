@@ -14,6 +14,7 @@ export default class HelloWorld extends Vue {
 tableColumns = [
     { title: 'Name'             , key : 'name'                   , align: 'center'    },
     { title: 'Message'          , key : 'message'                , align: 'center'    },
+    { title: 'Date'             , key : 'date'                , align: 'center'    },
     { title: 'Album'            , key : 'album'                  , align: 'center'    },
     { title: 'index'            , key : 'position'               , align: 'center'    },
     { title: 'Guessed Year'     , key : 'guessed_year'           , align: 'center'    },
@@ -35,6 +36,7 @@ images = [{
   name    : 'name of image.jpg',
   id      : 'adsf-asfd-asdf-asfd',
   message : 'when we said our vows',
+  date    : '2020-06-06',
   album   : 'wedding',
   order          : 1,
   guessed_year   :  false,
