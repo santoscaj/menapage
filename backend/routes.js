@@ -22,13 +22,19 @@ router.get('/fotos/:foto_id', async (req, res)=>{
         let { filename } = dbFoto
         let {dirname, day} = dbFoto.album
         console.log(dbFoto)
-        // res.sendStatus(200)
-        // console.log(day, dirname, filename)
         res.sendFile(`${__dirname}/images/${day}/${dirname}/${filename}`)
     }catch(err){
         console.error(err)
         res.sendStatus(500)
     }
+})
+
+
+router.get('/album_of_the_day/:day', async (req, res)=>{
+    if(!req.params.day) return res.sendStatus(401)
+    dbAlbum = await Album.findOne({where:{day:req.params.day}, include:Foto})
+    if(!dbAlbum) return res.sendStatus(404)
+    res.json(dbAlbum)
 })
 
 module.exports = router
