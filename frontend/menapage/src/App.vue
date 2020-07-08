@@ -1,6 +1,5 @@
 <template lang="pug">
-  div
-    router-view
+  router-view
 </template>
 
 <script lang="ts">
@@ -11,6 +10,12 @@ export default class App extends Vue {}
 </script>
 
 <style lang="sass">
+html, body
+  width: 100%
+  height: 100%
+  margin: 0
+  box-sizing: border-box
+
 #app
   font-family: Avenir, Helvetica, Arial, sans-serif
   -webkit-font-smoothing: antialiased
