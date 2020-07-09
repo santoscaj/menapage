@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './registerServiceWorker'
-import 'flickity/dist/flickity.css'
+// import 'flickity/dist/flickity.css'
 
 Vue.config.productionTip = false
 

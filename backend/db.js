@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { Sequelize, Model, DataTypes } = require('sequelize');
 
+
 let LOG = false
 
 const sequelize = new Sequelize('menipage','postgres','berto',{
@@ -22,11 +23,13 @@ function getDirectories(path) {
         .forEach(dir =>{
           // Directories with Fotos
           let fotoPath = albumPath+'/'+dir
+          // console.log(sizeOf(fotoPath))
           fotoAlbums.push({day, dirname: dir, fotos: fs.readdirSync(fotoPath )})
         })
     })
   return fotoAlbums
 }
+
 
 async function addAlbumsToDb(albums){
   printedAlready = false
