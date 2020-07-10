@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Home from '../views/Home.vue'
+import Messenger from '../views/Messenger.vue'
+
 
 Vue.use(VueRouter)
 

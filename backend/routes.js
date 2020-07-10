@@ -21,7 +21,6 @@ router.get('/fotos/:foto_id', async (req, res)=>{
         if(!dbFoto) return res.sendStatus(404)
         let { filename } = dbFoto
         let {dirname, day} = dbFoto.album
-        console.log(dbFoto)
         res.sendFile(`${__dirname}/images/${day}/${dirname}/${filename}`)
     }catch(err){
         console.error(err)

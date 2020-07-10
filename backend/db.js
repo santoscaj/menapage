@@ -30,6 +30,24 @@ function getDirectories(path) {
   return fotoAlbums
 }
 
+async function createUsers(){
+  try{
+    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto'}})
+    await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
+  }catch(err){console.error(err)}
+}
+
+
+async function addFakeMessages(){
+  try{
+    await Message.findOrCreate({where: {content: 'Hi', user_id: 1}})
+    await Message.findOrCreate({where: {content: 'Hello there', user_id: 2}})
+    await Message.findOrCreate({where: {content: 'I will test emojis', user_id: 1}})
+    await Message.findOrCreate({where: {content: 'Emoji test ✌', user_id: 1}})
+    await Message.findOrCreate({where: {content: 'Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto', user_id: 2}})
+    await Message.findOrCreate({where: {content: 'I will test longer texts: Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto, California. The company specializes in electric vehicle manufacturing, battery energy storage from home ', user_id: 1}})
+  }catch(err){console.error(err)}
+}
 
 async function addAlbumsToDb(albums){
   printedAlready = false
@@ -109,9 +127,44 @@ Foto.init({
 Foto.Album = Foto.belongsTo(Album, {foreignKey: 'album_id', constraints: false});
 Album.Fotos = Album.hasMany(Foto, {foreignKey: 'album_id', constraints: false});
 
+
+class Message extends Model {}
+class User extends Model {}
+
+User.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  alias: DataTypes.STRING, 
+}, { sequelize, modelName: 'user' });
+    
+
+Message.init({
+  content: {
+      type: DataTypes.STRING,
+      allowNull: false
+  },
+  user_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false, 
+    onDelete: 'CASCADE',
+    references: {
+        model: User, 
+        key: 'id'
+    }
+  }
+}, { sequelize, modelName: 'message' }
+);
+
+Message.User = Message.belongsTo(User, {foreignKey: 'user_id', constraints: false});
+User.Messages = User.hasMany(Message, {foreignKey: 'user_id', constraints: false});
+
 sequelize.sync()
 
-module.exports = {Foto, Album, Sequelize, sequelize}
+module.exports = {Foto, Album, Sequelize, sequelize, Message, User}
 
 let albums = getDirectories('./images')
 addAlbumsToDb(albums)
+createUsers()
+addFakeMessages()

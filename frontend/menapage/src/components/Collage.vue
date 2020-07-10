@@ -1,44 +1,64 @@
 <template lang="pug">
-.page(@mousedown="showCaption=true" @mouseup="showCaption=false")
+.page(
+  @mousedown="showCaption=true" 
+  @touchstart="showCaption=true" 
+  @mouseup="showCaption=false"
+  @touchend.prevent="showCaption=false"
+  )
   Carousel.carousel(
     :per-page="1"
     :loop="true" 
     :centerMode="true"
     :navigationEnabled="true"
+    :autoplay="rotate"
+    :autoplayTimeout="20000"
+    :paginationPadding="10"
+    paginationColor="#efefef"
+    paginationActiveColor="#000000"
+    v-model="page"
     ) 
     Slide.carousel-item( v-for="foto in fotos" :loop="true"  )
-      img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" ) 
+      img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" ) 
       transition( name="fade" )
-        .caption-area( v-if="showCaption" )
-          .caption-block.blur
+        .caption-area( v-show="showCaption" )
           .caption-block( :id="'caption-'+foto.id" )
             .caption 
               p I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina
               p.date Jan 30, 2017
+  Messenger( v-model="showMessenger" )
+  button.messenger-btn( @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") on
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue , Watch} from 'vue-property-decorator';
-// import Flickity from 'flickity'
 import axios from 'axios'
 //@ts-ignore
 import { Carousel, Slide } from 'vue-carousel'
 import { Album, Foto, emptyAlbum, emptyFoto }  from '@/utils/Album'
+import  Messenger from '@/components/Messenger.vue'
+
 let backendUrl = 'http://localhost:3000'
 
 interface ImageSize {
   [index: number] : {width: string; height: string}
 }
 
-@Component({components:{Carousel,Slide}})
+@Component({components:{Carousel,Slide, Messenger}})
 export default class Collage extends Vue {
   // fullScreen = false
   day         : number | null = null
   todaysAlbum : Album  = emptyAlbum()
   albumFotos  : Object = {} 
   imageSizes  : ImageSize = {}
-  showCaption = false
+  showCaption     = false
+  deviceIsMobile  = false
+  showMessenger   = false
+  page = 0
+  windowSize = window.innerWidth
 
+  messengerOnOff(){
+    this.showMessenger = !this.showMessenger
+  }
   sizeOfPic(id: number){
       if(!this.imageSizes[id]) 
         return {width:'0',height: '0'}
@@ -54,8 +74,15 @@ export default class Collage extends Vue {
     return this.todaysAlbum.fotos
   }
 
+  get rotate(){
+    return (this.windowSize < 450 && this.showCaption )
+  }
+
   onload(){
-    console.log('l;ltu')
+  }
+
+  goToMessenger(){
+
   }
 
   async setCaptions(){
@@ -65,7 +92,6 @@ export default class Collage extends Vue {
       let id = element.id
       let caption = captions.find(c=>c.id=="caption-"+id)
       if(caption){
-        console.log(element.clientHeight, element.clientWidth)
         // @ts-ignore 
         caption.style.width = element.clientWidth+'px'
         // @ts-ignore
@@ -76,20 +102,7 @@ export default class Collage extends Vue {
   }
 
   updated(){
-    this.setCaptions()
-    // let captions = Array.from(document.querySelectorAll('.caption-block'))
-    // document.querySelectorAll('.carousel-item>img').forEach(element=>{
-    //   let id = element.id
-    //   let caption = captions.find(c=>c.id=="caption-"+id)
-    //   if(caption){
-    //     console.log(element.clientHeight, element.clientWidth)
-    //     // @ts-ignore 
-    //     caption.style.width = element.clientWidth+'px'
-    //     // @ts-ignore
-    //     caption.style.height = element.clientHeight+'px'
-    //   }else
-    //     console.error('no caption found')
-    // })    
+    this.setCaptions() 
   }
 
   async getFotos(fotos : Foto[]){
@@ -98,10 +111,6 @@ export default class Collage extends Vue {
         let response = await axios.get(`${backendUrl}/fotos/${foto.id}`,{responseType: 'arraybuffer'})
         // @ts-ignore
         this.albumFotos = { ...this.albumFotos, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
-        // await this.$nextTick()
-        // let img = this.$refs['image-'+foto.id]
-        // console.log(document.querySelectorAll('.carousel-item'))
-        // console.dir(this.$refs)
       }catch(err){console.error(err)}
     }
   }
@@ -126,6 +135,14 @@ export default class Collage extends Vue {
   }
 
   mounted(){
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+      this.deviceIsMobile=true
+    }
+
+    // @ts-ignore 
+    window.onresize = ()=>{
+      this.windowSize = window.innerWidth
+    }
   }
 }
 </script>
@@ -134,6 +151,9 @@ export default class Collage extends Vue {
 <style scoped lang="sass">
 *
   box-sizing: border-box
+  --button-size: 40px
+  --button-margin: 20px
+  --orange-color: darkorange
 
 // .fullScreenBtn
 //   position: fixed
@@ -143,7 +163,6 @@ export default class Collage extends Vue {
 //   z-index: 1
 
 .page
-  border: 3px solid black
   display: flex 
   flex-direction: column
   height: 100vh
@@ -158,6 +177,8 @@ export default class Collage extends Vue {
   overflow: hidden
   // border: 1px solid red
   display: flex
+  flex-direction: column
+  justify-content: center
   height: calc(100vh - 20px)
   // padding: 20px
   box-sizing: border-box
@@ -182,17 +203,6 @@ export default class Collage extends Vue {
     height: auto
     object-fit: cover
 
-
-// .is-fullscreen
-//   position: fixed
-//   left: 0
-//   top: 0
-//   width: 100vw
-//   height: 100vh
-//   background: hsla(0, 0%, 0%, 0.9)
-//   // padding-bottom: 35px
-//   z-index: 1
-
 .caption-area 
   font-family: 'Galada', cursive
   font-family: 'Dancing Script', cursive
@@ -216,7 +226,7 @@ export default class Collage extends Vue {
   // width: calc(100% - 10px)
   // margin-bottom: 0
   // border: 1px solid cyan
-  background-image: linear-gradient( rgb(0,0,0,0.4) 0%, rgb(0,0,0,0.5) 10%, rgb(0,0,0,0.6) 20%, rgb(0,0,0,0.7) 30%, rgb(0,0,0,0.8) 40%, rgb(0,0,0,0.8) 50%, rgb(0,0,0,0.8) 60%, rgb(0,0,0,0.7) 70%, rgb(0,0,0,0.6) 80%, rgb(0,0,0,0.5) 90%, rgb(0,0,0,0.4) 100%)
+  background-image: linear-gradient( rgb(0,0,0,0.2) 0%, rgb(0,0,0,0.3) 5%, rgb(0,0,0,0.4) 10%, rgb(0,0,0,0.5) 15%, rgb(0,0,0,0.6) 20%, rgb(0,0,0,0.7) 30%, rgb(0,0,0,0.8) 40%, rgb(0,0,0,0.8) 50%, rgb(0,0,0,0.8) 60%, rgb(0,0,0,0.7) 70%, rgb(0,0,0,0.6) 80%, rgb(0,0,0,0.6) 85%, rgb(0,0,0,0.4) 90%, rgb(0,0,0,0.3) 95%, rgb(0,0,0,0.2) 100%)
   z-index: 0
 
 
@@ -230,7 +240,8 @@ export default class Collage extends Vue {
   
 
 .blur
-  filter: blur(5px)
+  // filter: blur(1px)
+  transition: all 1.5s
 
 .caption
   // background: white
@@ -247,8 +258,29 @@ export default class Collage extends Vue {
   padding: 15px
   padding-bottom: 50px
 
-.fade-enter-active, .fade-leave-active 
+.messenger-btn
+  margin: var(--button-margin)
+  border-radius: 50%
+  border: 1px solid var(--orange-color)
+  color: var(--orange-color)
+  background: white
+  position: absolute
+  width: var(--button-size)
+  height: var(--button-size)
+  bottom: 0
+  right: 0
+  outline: none
+  &:focus
+    outline: none
+  &:hover
+    background: var(--orange-color)
+    color: white
+
+.fade-enter-active
   transition: opacity 3s
+
+.fade-leave-active 
+  transition: opacity 1s  
 
 .fade-enter, .fade-leave-to
   opacity: 0
