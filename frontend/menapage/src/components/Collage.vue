@@ -5,6 +5,8 @@
   @mouseup="showCaption=false"
   @touchend.prevent="showCaption=false"
   )
+  chevron-left-icon.pagination-btns.left( v-if="!windowIsSmall" @click="prevPage()"  @touchstart="prevPage()" size="1x" :disabled="!inTransition")
+  chevron-right-icon.pagination-btns.right( v-if="!windowIsSmall" @click="nextPage()" @touchstart="prevPage()" size="1x" :disabled="!inTransition")
   Carousel.carousel(
     :per-page="1"
     :loop="true" 
@@ -17,21 +19,25 @@
     paginationActiveColor="#0D3B66"
     v-model="page"
     ) 
+    //- @transition-start="transitioning(true)"
+    //- @transition-end="transitioning(false)" )
     Slide.carousel-item( v-for="foto in fotos" :loop="true"  )
       img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" ) 
-      transition( name="fade" )
+      transition( name="caption-fade" )
         .caption-area( v-show="showCaption" )
           .caption-block( :id="'caption-'+foto.id" )
             .caption 
-              p I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina
-              p.date Jan 30, 2017
-  Messenger( v-model="showMessenger" )
+              p {{foto.caption}}
+              p.date {{foto.date}}
+  Messenger( v-model="showMessenger" @touchstart="touchToClick")
   button.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue , Watch} from 'vue-property-decorator';
+// @ts-ignore 
+import { ChevronLeftIcon, ChevronRightIcon  } from 'vue-feather-icons'
 import axios from 'axios'
 
 //@ts-ignore
@@ -47,7 +53,13 @@ interface ImageSize {
   [index: number] : {width: string; height: string}
 }
 
-@Component({components:{Carousel,Slide, Messenger, MessageCircleIcon}})
+function getTimeLeftToNextDay(){
+  let hoursLeft = 23 - ( new Date().getHours() )
+  let minutesLeft = 59 - ( new Date().getMinutes() )
+  return hoursLeft * 3600000 + minutesLeft * 60000
+}
+
+@Component({components:{Carousel,Slide, Messenger, MessageCircleIcon, ChevronLeftIcon, ChevronRightIcon}})
 export default class Collage extends Vue {
   // fullScreen = false
   day         : number | null = null
@@ -59,9 +71,26 @@ export default class Collage extends Vue {
   showMessenger   = false
   page = 0
   windowSize = window.innerWidth
+  inTransition    = false
+
+  touchToClick(e:any){
+    e.target.click()
+  }
 
   messengerOnOff(){
     this.showMessenger = !this.showMessenger
+  }
+
+  transitioning(value: boolean){
+    // console.log(value)
+  }
+
+  nextPage(){
+    this.page = (this.page>=this.todaysAlbum.fotos.length - 1 ? 0 : this.page +1 )
+  }
+
+  prevPage(){
+    this.page = (this.page<= 0 ? this.todaysAlbum.fotos.length -1  : this.page - 1)
   }
 
   sizeOfPic(id: number){
@@ -79,15 +108,12 @@ export default class Collage extends Vue {
     return this.todaysAlbum.fotos
   }
 
+  get windowIsSmall(){
+    return this.windowSize <= 450
+  }
+
   get rotate(){
-    return (this.windowSize < 450 && this.showMessenger )
-  }
-
-  onload(){
-  }
-
-  goToMessenger(){
-
+    return (this.windowIsSmall && this.showMessenger )
   }
 
   async setCaptions(){
@@ -131,12 +157,17 @@ export default class Collage extends Vue {
     }catch(err){console.error(err)}
   }
 
-  timeChecker(){}
+  updateDate(){
+    this.day = new Date().getDate()
+  }
 
   created(){
-    this.day = 13
-    // this.day = new Date().getDate()
-    this.timeChecker()
+    this.updateDate()
+    setTimeout(()=>{
+      // update current date and check what day it is once a day
+      this.updateDate()
+      setInterval(this.updateDate,86400000)
+    },getTimeLeftToNextDay())
   }
 
   mounted(){
@@ -156,21 +187,22 @@ export default class Collage extends Vue {
 <style scoped lang="sass">
 *
   box-sizing: border-box
-  --button-size: 40px
-  --button-margin: 20px
+  --button-size: 50px
+  --button-margin: 10px
   --orange-color: darkorange
   --purple-color: #D9BBF9
   --primary-color: #FFA400
+  --secondary-orange: orange
   --secondary-color: #009FFD
   --matching-color-1: #FF5964
   --matching-color-2: #4E5283
 
-// .fullScreenBtn
-//   position: fixed
-//   top: 0
-//   right: 0
-//   background: red
-//   z-index: 1
+  --icon-background-no-hover: #FFA400
+  --icon-border-no-hover: #FFA400
+  --icon-color-no-hover: white
+  --icon-background-hover: white
+  --icon-border-hover: #FFA400
+  --icon-color-hover: black
 
 .page
   display: flex 
@@ -179,6 +211,22 @@ export default class Collage extends Vue {
   width: 100vw
   justify-content: center
   align-items: center
+
+.pagination-btns
+  position: absolute
+  width: 140px
+  height: 100vh
+  padding: 35px
+  font-size: 50px
+  z-index: 1 
+  cursor: pointer
+  &:hover
+    color: silver
+
+.left
+  left: calc(0.1vw * 60 )
+.right
+  right: calc(0.1vw * 60 )
 
 .image-area
   width: 100%
@@ -247,19 +295,13 @@ export default class Collage extends Vue {
   flex-direction: column
   justify-content: center
   // object-fit: cover
-  
 
 .blur
   // filter: blur(1px)
   transition: all 1.5s
 
 .caption
-  // background: white
-  // background-image: linear-gradient(rgb(0,0,0,0.04), rgb(0,0,0,0.4))
-  // background-color: rgb(0,0,0)
-  // background-color: rgba(0,0,0, 0.4)
   font-size: 1.9vh
-  // height: 100%
   line-height: 2.8vh
   color: salmon
   color: coral
@@ -271,12 +313,9 @@ export default class Collage extends Vue {
 .messenger-btn
   margin: var(--button-margin)
   border-radius: 50%
-  border: 1px solid var(--orange-color)
-  border: 1px solid var(--primary-color)
-  color: var(--orange-color)
-  color: var(--primary-color)
-  
-  background: white
+  border: 1px solid var(--icon-border-no-hover)
+  color: var(--icon-color-no-hover)
+  background-color: var(--icon-background-no-hover)
   position: absolute
   width: var(--button-size)
   height: var(--button-size)
@@ -286,17 +325,17 @@ export default class Collage extends Vue {
   &:focus
     outline: none
   &:hover
-    background: var(--orange-color)
-    background: var(--primary-color)
-    color: white
+    border: 1px solid var(--icon-border-hover)
+    color: var(--icon-color-hover)
+    background-color: var(--icon-background-hover)
 
-.fade-enter-active
-  transition: opacity 3s
+.caption-fade-enter-active
+  transition: opacity 4s
 
-.fade-leave-active 
+.caption-fade-leave-active 
   transition: opacity 1s  
 
-.fade-enter, .fade-leave-to
+.caption-fade-enter, .caption-fade-leave-to
   opacity: 0
 
 ::-webkit-scrollbar
@@ -315,5 +354,12 @@ export default class Collage extends Vue {
 ::-webkit-scrollbar-thumb:hover
   background: #555
 
+@media (max-width: 750px)
+  .left
+    left: calc(0.05vw * 30 ) 
+  .right
+    right: calc(0.05vw * 30 ) 
+
 </style>
 
+w

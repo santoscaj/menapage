@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {Album, Foto} = require('./db')
+const {Album, Foto, User} = require('./db')
 
 // router.get('/albums/:album_id', async (req, res)=>{
 //     if(!req.params.album_id) res.sendStatus(401)
@@ -26,6 +26,13 @@ router.get('/fotos/:foto_id', async (req, res)=>{
         console.error(err)
         res.sendStatus(500)
     }
+})
+
+router.get('/users', async (req, res)=>{
+    let query = req.query
+    let user = await User.findOne({where:query})
+    if(!user) res.sendStatus(404)
+    res.json(user)
 })
 
 

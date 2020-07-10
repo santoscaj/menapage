@@ -103,7 +103,10 @@ Foto.init({
       type: DataTypes.STRING,
       allowNull: false
   },
-  date: DataTypes.DATE,
+  date: {
+    type: DataTypes.STRING,
+    defaultValue: ''
+},
   visited: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

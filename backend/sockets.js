@@ -19,14 +19,14 @@ module.exports =  function(io){
             console.log(`Disconnecting ${socket.id}! active connections: ${Object.keys(io.sockets.connected).length}`)
         });
 
-        socket.on('message', async function(data){
-            console.log(data)
-            return
+        socket.on('newmessage', async function(data){
             try{
-                let newMessage = await Message.create({content:data.content, user_id: data.user_id})
-                io.emit('message')
+                let dbMessage = await Message.create({...data})
+                let newMessage = await Message.findOne({where:{id:dbMessage.id}, include: User})
+                io.emit('successmessage')
+                io.emit('newmessage', newMessage)
             }catch(err){
-                socket.emit('error', err)
+                socket.emit('errormessage', err)
                 console.error(err)
             }
         })
