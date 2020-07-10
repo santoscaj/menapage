@@ -13,8 +13,8 @@
     :autoplay="rotate"
     :autoplayTimeout="20000"
     :paginationPadding="10"
-    paginationColor="#efefef"
-    paginationActiveColor="#000000"
+    paginationColor="#EAF2E3"
+    paginationActiveColor="#0D3B66"
     v-model="page"
     ) 
     Slide.carousel-item( v-for="foto in fotos" :loop="true"  )
@@ -26,12 +26,16 @@
               p I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina I love you cacahuate con pollo relleno de amor cuchi cuchi mandarina
               p.date Jan 30, 2017
   Messenger( v-model="showMessenger" )
-  button.messenger-btn( @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") on
+  button.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
+    message-circle-icon
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue , Watch} from 'vue-property-decorator';
 import axios from 'axios'
+
+//@ts-ignore
+import {MessageCircleIcon} from 'vue-feather-icons'
 //@ts-ignore
 import { Carousel, Slide } from 'vue-carousel'
 import { Album, Foto, emptyAlbum, emptyFoto }  from '@/utils/Album'
@@ -43,7 +47,7 @@ interface ImageSize {
   [index: number] : {width: string; height: string}
 }
 
-@Component({components:{Carousel,Slide, Messenger}})
+@Component({components:{Carousel,Slide, Messenger, MessageCircleIcon}})
 export default class Collage extends Vue {
   // fullScreen = false
   day         : number | null = null
@@ -59,6 +63,7 @@ export default class Collage extends Vue {
   messengerOnOff(){
     this.showMessenger = !this.showMessenger
   }
+
   sizeOfPic(id: number){
       if(!this.imageSizes[id]) 
         return {width:'0',height: '0'}
@@ -75,7 +80,7 @@ export default class Collage extends Vue {
   }
 
   get rotate(){
-    return (this.windowSize < 450 && this.showCaption )
+    return (this.windowSize < 450 && this.showMessenger )
   }
 
   onload(){
@@ -154,6 +159,11 @@ export default class Collage extends Vue {
   --button-size: 40px
   --button-margin: 20px
   --orange-color: darkorange
+  --purple-color: #D9BBF9
+  --primary-color: #FFA400
+  --secondary-color: #009FFD
+  --matching-color-1: #FF5964
+  --matching-color-2: #4E5283
 
 // .fullScreenBtn
 //   position: fixed
@@ -262,7 +272,10 @@ export default class Collage extends Vue {
   margin: var(--button-margin)
   border-radius: 50%
   border: 1px solid var(--orange-color)
+  border: 1px solid var(--primary-color)
   color: var(--orange-color)
+  color: var(--primary-color)
+  
   background: white
   position: absolute
   width: var(--button-size)
@@ -274,6 +287,7 @@ export default class Collage extends Vue {
     outline: none
   &:hover
     background: var(--orange-color)
+    background: var(--primary-color)
     color: white
 
 .fade-enter-active
@@ -284,6 +298,22 @@ export default class Collage extends Vue {
 
 .fade-enter, .fade-leave-to
   opacity: 0
+
+::-webkit-scrollbar
+  width: 6px
+
+//  Track 
+::-webkit-scrollbar-track 
+  background: #f1f1f1
+ 
+//  Handle 
+::-webkit-scrollbar-thumb 
+  border-radius: 5px
+  background: #888
+
+// Handle on hover 
+::-webkit-scrollbar-thumb:hover
+  background: #555
 
 </style>
 

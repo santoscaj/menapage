@@ -12,9 +12,11 @@ module.exports =  function(io){
             console.log(err)    
             socket.emit('error',err)
         }
-
+        
         socket.on('disconnect', function(){
-            console.log(`Disconnected socket ${socket.id}! active connections ${Object.keys(io.sockets.connected).length}`)            
+            console.log(`Disconnecting ${socket.id}! active connections: ${Object.keys(io.sockets.connected).length}`)
+            socket.disconnect()
+            console.log(`Disconnecting ${socket.id}! active connections: ${Object.keys(io.sockets.connected).length}`)
         });
 
         socket.on('message', async function(data){

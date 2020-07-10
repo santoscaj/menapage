@@ -7,53 +7,45 @@ transition( name="messenger-fade")
       .message(v-for="message in messages" :class="{'my-message': mainUserRegex.test(message.user.alias)}") 
         span.user {{message.user.alias}}:
         span {{message.content}}
+      picker.emoji-picker( 
+        @select="selectEmoji" 
+        @touchstart.native="touch"
+          :data="emojiIndex"
+          :perLine="9"
+          title="Berto loves meni"
+          :showPreview="false"
+          color="#ae65c5"
+          set="facebook"
+        )
     .input-chat
-      input(v-model="input")
+      textarea(v-model="input" @keyup="keypressed" )
       .btns-area
         button
+          smile-icon
         button
-//- beautiful-chat(
-//-       @touchstart="closeChat()" 
-//-       :participants="participants"
-//-       :titleImageUrl="titleImageUrl"
-//-       :onMessageWasSent="onMessageWasSent"
-//-       :messageList="messageList"
-//-       :newMessagesCount="newMessagesCount"
-//-       :isOpen="isChatOpen"
-//-       :close="closeChat"
-//-       :icons="icons"
-//-       :open="openChat"
-//-       :showEmoji="true"
-//-       :showFile="true"
-//-       :showEdition="true"
-//-       :showDeletion="true"
-//-       :showTypingIndicator="showTypingIndicator"
-//-       :showLauncher="true"
-//-       :showCloseButton="true"
-//-       :colors="colors"
-//-       :alwaysScrollToBottom="alwaysScrollToBottom"
-//-       :messageStyling="messageStyling"
-//-     )
-    
+          send-icon
+
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue , Watch} from 'vue-property-decorator'
 import io from 'socket.io-client'
-// import CloseIcon from 'vue-beautiful-chat/src/assets/close-icon.png'
-// import OpenIcon from 'vue-beautiful-chat/src/assets/logo-no-bg.svg'
-// import FileIcon from 'vue-beautiful-chat/src/assets/file.svg'
-// import CloseIconSvg from 'vue-beautiful-chat/src/assets/close.svg'
-
-// interface Message {
-//    type: string
-//    author: string
-//    data: { text: string } 
-// }
+// @ts-ignore 
+import {SendIcon, SmileIcon} from 'vue-feather-icons'
+//@ts-ignore
+import { Picker , EmojiIndex } from 'emoji-mart-vue-fast'
+//@ts-ignore
+import data from 'emoji-mart-vue-fast/data/all.json'
+let emojiIndex = new EmojiIndex(data)
+import 'emoji-mart-vue-fast/css/emoji-mart.css'
 
 
-@Component({components:{}})
-export default class Collage extends Vue{
+@Component({components:{SendIcon, SmileIcon, Picker }})
+export default class Messenger extends Vue{
+
+selectEmoji(data:any){
+  console.dir(data.native)
+}
 
 @Prop() value! : boolean
 @Prop({default:"http://localhost:3000/"}) url! : string
@@ -61,8 +53,19 @@ export default class Collage extends Vue{
 messages = []
 input=''
 mainUserRegex = /meni/i
+emojiIndex = emojiIndex
+
+touch(data: any){
+  data.target.click()
+}
+
 stopShowing(){
   this.$emit('input', false)
+}
+
+keypressed(e: any){
+  if(e.keyCode==13 && !e.altKey && !e.shiftKey)
+    console.log('ENTER')
 }
 
 mounted(){
@@ -72,121 +75,9 @@ mounted(){
   socket.on('error', ( data : any )=>{console.log('error getting messages' + data)});
 }
 
-// get CloseIcon(){
-//   return CloseIcon
-// }
-
-// chat start
-
-// sendMessage (text:string) {
-//   if (text.length > 0) {
-//     this.newMessagesCount = this.isChatOpen ? this.newMessagesCount : this.newMessagesCount + 1
-//     this.onMessageWasSent({ author: 'support', type: 'text', data: { text } })
-//   }
-// }
-
-// handleScrollToTop () {
-//   // called when the user scrolls message list to top
-//   // leverage pagination for loading another page of messages
-// }
-// handleOnType () {
-//   console.log('Emit typing event')
-// }
-
-// editMessage(message: Message){
-
-// }
-
-// onMessageWasSent (message : Message) {
-//   // called when the user sends a message
-//   this.messageList = [ ...this.messageList, message ]
-// }
-
-// openChat () {
-//       // called when the user clicks on the fab button to open the chat
-//       this.isChatOpen = true
-//       this.newMessagesCount = 0
-// }
-
-// closeChat () {
-//     // called when the user clicks on the botton to close the chat
-//     this.isChatOpen = false
-//   }
-
-//       icons = {
-//         open:{
-//           img: OpenIcon,
-//           name: 'default',
-//         },
-//         close:{
-//           img: CloseIcon,
-//           name: 'default',
-//         },
-//         file:{
-//           img: FileIcon,
-//           name: 'default',
-//         },
-//         closeSvg:{
-//           img: CloseIconSvg,
-//           name: 'default',
-//         },
-//       }
-//       participants = [
-//         {
-//           id: 'user1',
-//           name: 'Matteo',
-//           imageUrl: 'https://avatars3.githubusercontent.com/u/1915989?s=230&v=4'
-//         },
-//         {
-//           id: 'user2',
-//           name: 'Support',
-//           imageUrl: 'https://avatars3.githubusercontent.com/u/37018832?s=200&v=4'
-//         }
-//       ]
-//        // the list of all the participant of the conversation. `name` is the user name, `id` is used to establish the author of a message, `imageUrl` is supposed to be the user avatar.
-//       titleImageUrl =  'https://a.slack-edge.com/66f9/img/avatars-teams/ava_0001-34.png'
-//       messageList =  [
-//           { type: 'text', author: `me`, data: { text: `Say yes!` } },
-//           { type: 'text', author: `user1`, data: { text: `No.` } }
-//       ]
-      
-//       // the list of the messages to show, can be paginated and adjusted dynamically
-//       newMessagesCount = 0
-//       isChatOpen =  true  // to determine whether the chat window should be open or closed
-//       showTypingIndicator =  '' // when set to a value matching the participant.id it shows the typing indicator for the specific user
-//       colors = {
-//         header: {
-//           bg: '#4e8cff',
-//           text: '#ffffff'
-//         },
-//         launcher: {
-//           bg: '#4e8cff'
-//         },
-//         messageList: {
-//           bg: '#ffffff'
-//         },
-//         sentMessage: {
-//           bg: '#4e8cff',
-//           text: '#ffffff'
-//         },
-//         receivedMessage: {
-//           bg: '#eaeaea',
-//           text: '#222222'
-//         },
-//         userInput: {
-//           bg: '#f4f7f9',
-//           text: '#565867'
-//         }
-//       }
-//       // specifies the color scheme for the component
-//       alwaysScrollToBottom =  false // when set to true always scrolls the chat to the bottom when new events are in (new message, user starts typing...)
-//       messageStyling =  true // enables *bold* /emph/ _underline_ and such (more info at github.com/mattezza/msgdown)
-// chat end
-
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="sass">
 * 
   box-sizing: border-box
@@ -205,10 +96,12 @@ mounted(){
   height: auto
   max-width: 100vw
   max-height: 100vh
+  border: 4px solid red
   bottom: 0
   right: 0
 
 .title
+  font-family: 'Open Sans', cursive
   flex: 0 0 auto
   display: flex
   justify-content: center
@@ -218,13 +111,16 @@ mounted(){
   font-size: 16px
   font-weight: 600
   text-align: center
-  background: var(--orange-color)
+  // border: 2px solid var(--orange-color)
+  background: #ebb44d
+  background: var(--primary-color)
   color: black
   padding: 3px
   // border: 1px solid var(--orange-color)
   border-radius:  var(--border-radius) var(--border-radius) 0 0
 
 .chat-log
+  position: relative
   display: flex
   flex-direction: column
   align-items: flex-start
@@ -239,6 +135,10 @@ mounted(){
   // border: 1px solid red
   background: rgb(255,255,255,0.4)
 
+.emoji-picker
+  position: absolute
+  bottom: 0
+
 .message
   width: auto
   margin: 5px
@@ -246,10 +146,12 @@ mounted(){
   font-size: 14px
   line-height: 17px
   padding: 7px 12px
-  background: white
   background-image: linear-gradient(rgb(255,0,255, 0.1), rgb(255,0,255, 0.1))
+  background: white
   border: 1px solid purple
+  border: 1px solid var(--secondary-color)
   color: black
+  // color: var(--secondary-color)
   margin-right: 60px
   border-radius: 0 10px 10px 10px 
 
@@ -257,6 +159,7 @@ mounted(){
   align-self: flex-end
   background: white
   border: 1px solid darkorange
+  border: 1px solid var(--primary-color)
   color: black
   margin: 5px
   // margin-bottom: 0
@@ -268,12 +171,25 @@ mounted(){
   padding-right: 5px
 
 .input-chat
+  background: white
   flex: 0 0 auto
-  height: var(--bar-height)
+  height: calc(var(--bar-height) * 2)
   border-radius: 0 0 var(--border-radius) var(--border-radius)
   display: flex
   overflow: hidden
   width: 100%
+  border: 1px solid gray
+  &>input, &>textarea
+    font-family: 'Comic Neue', cursive
+    resize: none
+    width: 100%
+    border: none
+    padding: 10px
+    outline: none
+    border: none
+    &:focus, &:hover
+      outline: none
+      border: none
 
 .messenger-fade-enter-active, .messenger-fade-leave-active 
   transition: opacity 0.4s
@@ -292,7 +208,9 @@ mounted(){
   
   .title, .input-chat
     border-radius: 0
-    height: 45px
+    // height: 45px
+
+
 
 </style>
 
