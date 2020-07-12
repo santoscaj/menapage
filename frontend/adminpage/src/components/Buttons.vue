@@ -78,6 +78,7 @@ export default class Collage extends Vue {
   }
 
   logout(){
+    localStorage.clear()
     store.logout()
     this.$router.push({name:'Login'})
   }
