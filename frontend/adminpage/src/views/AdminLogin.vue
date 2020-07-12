@@ -1,13 +1,13 @@
 <template lang="pug">
   .main-div
-    .login-box
+    .login-box( @keyup="checkEnter")
       .credentials
         p Username:
-        Input(label="username" v-model="username")
+        input.user-password( v-model="username")
         p Password:
-        Input(label="password" v-model="password")
+        input.user-password( type="password" v-model="password")
         .submit
-          Button(type="primary" @click="login()")
+          Button.login-btn(type="primary" @click="login()")
             p Login
 </template>
 
@@ -16,26 +16,44 @@
 import ManageTable from '@/components/ManageTable.vue'
 import {Vue, Component} from 'vue-property-decorator'
 import {Message} from 'view-design'
+import axios from 'axios'
+import {checkCredentials} from '@/utils/internal.ts'
+import store from '@/store'
+
 @Component({components:{ManageTable}})
 export default class ManagePage extends Vue {
   username=''
   password=''
+  users = []
 
-  adminUser = 'admin'
-  adminPass = 'adminadmin'
+  checkEnter(e){
+    if(e.keyCode==13)
+      this.login()
+  }
 
-  // For this project I will be the only user to ever this page.
-  // No need to construct DB or perform requests to the backend
   login(){
     if(!this.username) return Message.error('No username provided')
     if(!this.password) return Message.error('No password provided')
     
-    if(this.username!=this.adminUser || this.password !=this.adminPass)
+    let user = checkCredentials(this.username, this.password, this.users)
+
+    if(!user)
       return Message.error('Wrong username or password')
     
-    this.$store.commit('login')
-    Message.success('login successful')
-    this.$router.push({name:'Manage'})
+    store.setUser(user)
+    if(user.id)
+      this.$router.push({name:'Home'})
+  }
+
+  async mounted(){
+  try{
+    let response = await axios.get(store.backendUrl+'users')
+    this.users = response.data
+  }catch(err){console.error(err)}
+    // try{
+    //   let response = await axios.get(`http://localhost:3000/album_of_the_day/0`)
+    //   this.backgroundFotos = response.data
+    // }catch(err){console.error(err)}
   }
 
 }
@@ -45,6 +63,9 @@ export default class ManagePage extends Vue {
 </script>
 
 <style lang="sass" scoped>
+*
+  font-family: 'Open Sans', 'Comic Neue' cursive
+
 .main-div
   display: flex
   align-items: center
@@ -53,9 +74,29 @@ export default class ManagePage extends Vue {
   height: 100%
 
 .login-box
-  width: 25vw
+  width: 300px
+
+.user-password, .user-password:focus
+  width: 100%
+  outline: none
+  border: 1px solid lightgray
+  font-family: 'Open Sans', 'Comic Neue' cursive
+  padding: 3px 5px
+  border-radius: 5px
+  &:hover
+    outline: none
+    border: 1px solid black
+  
+
+.login-btn
+  background: orange
+  padding: 5px
+  border: 1px solid gray
+  border-radius: 5px
 
 .credentials
+  display: flex
+  flex-direction: column
   border: 1px solid black
   padding: 20px 30px
   border-radius: 5px

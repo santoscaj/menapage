@@ -13,14 +13,13 @@
 
 <script>
 // @ is an alias to /src
-import ManageTable from '@/components/ManageTable.vue'
 import {Vue, Component} from 'vue-property-decorator'
 import {Message} from 'view-design'
 import axios from 'axios'
 import {checkCredentials} from '@/utils/internal.ts'
 import store from '@/store'
 
-@Component({components:{ManageTable}})
+@Component({components:{}})
 export default class ManagePage extends Vue {
   username=''
   password=''
@@ -41,8 +40,10 @@ export default class ManagePage extends Vue {
       return Message.error('Wrong username or password')
     
     store.setUser(user)
-    if(user.id)
+    if(user.id){
+      localStorage.setItem('user', JSON.stringify(user))
       this.$router.push({name:'Home'})
+    }
   }
 
   async mounted(){

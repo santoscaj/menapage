@@ -7,7 +7,6 @@
           div day {{album.day}}
           div {{album.dirname}} 
           div ({{album.fotos.length}})
-    Buttons
 </template>
 
 <script>
@@ -15,9 +14,9 @@
 import {Vue, Component} from 'vue-property-decorator'
 import axios from 'axios'
 import store from '@/store'
-import Buttons from '@/components/Buttons.vue'
-@Component({components:{Buttons}})
-export default class ManagePage extends Vue {
+
+@Component({components:{}})
+export default class ManageHome extends Vue {
 
 albums = []
 
@@ -26,6 +25,7 @@ goToManagePage(albumDay){
 }
 
 async created(){
+
   try{
     let response = await axios.get(store.backendUrl+'albums')
     this.albums = response.data

@@ -34,8 +34,6 @@
     message-circle-icon
   button.circle-btn.logout-btn( @click="logout()" ) 
     log-out-icon
-  button.circle-btn.manage-btn( v-if="user.is_admin" @click="goToManage()") 
-    arrow-up-right-icon
 </template>
 
 <script lang="ts">
@@ -90,10 +88,6 @@ export default class Collage extends Vue {
 
   transitioning(value: boolean){
     // console.log(value)
-  }
-
-  goToManage(){
-    this.$router.push({name:'Manage'})
   }
 
   logout(){
