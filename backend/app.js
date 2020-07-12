@@ -3,16 +3,14 @@ const app = express()
 const router = require('./routes')
 const db = require('./db')
 const cors = require('cors')
+const bodyParser = require('body-parser')
+
 
 const server = require('http').createServer(app)
 const io = require('socket.io')(server);
 const socketConnections  = require('./sockets')(io)
 
-
-app.get('/', function (req, res) {
-    res.send('Hello World')
-})
-
+app.use(bodyParser.json())
 app.use(cors({origin:'http://localhost:8080'}))
 app.use(router)
 

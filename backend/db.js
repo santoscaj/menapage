@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { Sequelize, Model, DataTypes } = require('sequelize');
-
+const { setupMaster } = require('cluster');
+const moment = require('moment')
 
 let LOG = false
 
@@ -9,6 +10,7 @@ const sequelize = new Sequelize('menipage','postgres','berto',{
     dialect: 'postgres',
     logging: message=>{if(LOG) console.log(message)}
 })
+
 
 function getDirectories(path) {
   let fotoAlbums = []
@@ -32,7 +34,7 @@ function getDirectories(path) {
 
 async function createUsers(){
   try{
-    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto'}})
+    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', is_admin: true}})
     await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
   }catch(err){console.error(err)}
 }
@@ -49,6 +51,23 @@ async function addFakeMessages(){
   }catch(err){console.error(err)}
 }
 
+
+
+let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+function getDate(filename){
+  try{
+    let date = filename.match(/[_-]\d{8}[_-]/) || filename.match(/\d{8}/) || filename.match(/\d{4}-\d{2}-\d{2}/) 
+    if(!date) return 'invalid date'
+    date = date[0].replace(/[-_]/g, '')
+    let y = date.substr(0,4), m = Number(date.substr(4,2)-1), d = date.substr(6,2)
+    let dateString = `${months[m]} ${d}, ${y}` || 'invalid date'
+    return dateString
+  }catch(e){
+    console.log(e, filename, y,m,d)
+    return 'error date'
+  }
+}
+
 async function addAlbumsToDb(albums){
   printedAlready = false
   for (let album of albums){
@@ -56,7 +75,8 @@ async function addAlbumsToDb(albums){
       let {dirname, day} = album
       let dbAlbum = await Album.findOrCreate({where:{ dirname, day }})
       for(let foto of album.fotos){
-        await Foto.findOrCreate({where:{filename:foto, album_id: dbAlbum[0].id}})
+        let date = getDate(foto)
+        await Foto.findOrCreate({where:{date, filename:foto, album_id: dbAlbum[0].id}})
       }
     }catch(err){
       if(err.message=='Validation error' && !printedAlready){
@@ -68,15 +88,12 @@ async function addAlbumsToDb(albums){
   }
 }
 
+
+
 class Foto extends Model {}
 class Album extends Model {}
 
 Album.init({
-  // id:{
-  //   type: DataTypes.UUID, 
-  //   primaryKey: true,
-  //   allowNull: false, 
-  // }, 
   dirname: {
     type: DataTypes.STRING,
     allowNull: false
@@ -94,11 +111,6 @@ Album.init({
     
 
 Foto.init({
-  // id: {
-  //     type: DataTypes.UUID, 
-  //     primaryKey: true,
-  //     allowNull: false,
-  // },
   filename: {
       type: DataTypes.STRING,
       allowNull: false
@@ -106,7 +118,11 @@ Foto.init({
   date: {
     type: DataTypes.STRING,
     defaultValue: ''
-},
+  },
+  position: {
+    type: DataTypes.INTEGER,
+    defaultValue: 20
+  },
   visited: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
@@ -140,6 +156,10 @@ User.init({
     allowNull: false
   },
   alias: DataTypes.STRING, 
+  is_admin: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
 }, { sequelize, modelName: 'user' });
     
 
@@ -156,18 +176,38 @@ Message.init({
         model: User, 
         key: 'id'
     }
-  }
+  },
+  is_delivered: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  is_read: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
 }, { sequelize, modelName: 'message' }
 );
+
 
 Message.User = Message.belongsTo(User, {foreignKey: 'user_id', constraints: false});
 User.Messages = User.hasMany(Message, {foreignKey: 'user_id', constraints: false});
 
-sequelize.sync()
-
 module.exports = {Foto, Album, Sequelize, sequelize, Message, User}
 
+
 let albums = getDirectories('./images')
-addAlbumsToDb(albums)
-createUsers()
-addFakeMessages()
+
+async function setup(){
+  await sequelize.sync()
+  await addAlbumsToDb(albums)
+  await createUsers()
+  await addFakeMessages()
+}
+
+setup()
+
+;(async ()=>{
+  let data  = await Foto.findAll({where:{}, include: {model: Album, where:{day:11} }})
+  let cleanData = data.map(f=>f.filename)
+  dbAlbum = await Album.findOne({where:{day:11}, include:Foto})
+})()

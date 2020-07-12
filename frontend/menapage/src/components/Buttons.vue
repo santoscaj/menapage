@@ -1,48 +1,27 @@
 <template lang="pug">
-.page(
-  @mousedown="showCaption=true" 
-  @touchstart="showCaption=true" 
-  @mouseup="showCaption=false"
-  @touchend.prevent="showCaption=false"
-  )
-  chevron-left-icon.pagination-btns.left( v-if="!windowIsSmall" @click="prevPage()"  @touchstart="prevPage()" size="1x" :disabled="!inTransition")
-  chevron-right-icon.pagination-btns.right( v-if="!windowIsSmall" @click="nextPage()" @touchstart="prevPage()" size="1x" :disabled="!inTransition")
-  Carousel.carousel(
-    :per-page="1"
-    :loop="true" 
-    :centerMode="true"
-    :navigationEnabled="true"
-    :autoplay="rotate"
-    :autoplayTimeout="20000"
-    :paginationPadding="10"
-    paginationColor="#EAF2E3"
-    paginationActiveColor="#0D3B66"
-    v-model="page"
-    ) 
-    //- @transition-start="transitioning(true)"
-    //- @transition-end="transitioning(false)" )
-    Slide.carousel-item( v-for="foto in fotos" :loop="true" :key="foto.id" )
-      img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" ) 
-      transition( name="caption-fade" )
-        .caption-area( v-show="showCaption" )
-          .caption-block( :id="'caption-'+foto.id" )
-            .caption 
-              p {{foto.caption}}
-              p.date {{foto.date}}
+.main-btns
   Messenger( v-model="showMessenger" @touchstart="touchToClick")
-  button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
-    message-circle-icon
-  button.circle-btn.logout-btn( @click="logout()" ) 
-    log-out-icon
-  button.circle-btn.manage-btn( v-if="user.is_admin" @click="goToManage()") 
-    arrow-up-right-icon
+  Tooltip( content="logout" theme="dark" placement="top" )
+    button.circle-btn.logout-btn( @click="logout()" ) 
+      log-out-icon
+  Tooltip( content="choose album" theme="dark" placement="top" )
+    button.circle-btn.logout-btn( @click="chooseAlbum()" ) 
+      grid-icon
+  Tooltip( content="go to carousel" theme="dark" placement="top" )
+    button.circle-btn.logout-btn( @click="carousel()" ) 
+      image-icon
+  .spacer
+  Tooltip( content="open chat" theme="dark" placement="top" )
+    button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
+      message-circle-icon
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue , Watch} from 'vue-property-decorator';
 // @ts-ignore 
-import { ChevronLeftIcon, ChevronRightIcon, ArrowUpRightIcon, LogOutIcon  } from 'vue-feather-icons'
+import { ChevronLeftIcon, ChevronRightIcon, ArrowUpRightIcon, LogOutIcon, GridIcon, ImageIcon    } from 'vue-feather-icons'
 import axios from 'axios'
+import { Tooltip } from 'view-design';
 
 //@ts-ignore
 import {MessageCircleIcon} from 'vue-feather-icons'
@@ -51,6 +30,8 @@ import { Carousel, Slide } from 'vue-carousel'
 import { Album, Foto, emptyAlbum, emptyFoto }  from '@/utils/Album'
 import  Messenger from '@/components/Messenger.vue'
 import store from '@/store'
+
+let backendUrl = 'http://localhost:3000'
 
 interface ImageSize {
   [index: number] : {width: string; height: string}
@@ -62,7 +43,7 @@ function getTimeLeftToNextDay(){
   return hoursLeft * 3600000 + minutesLeft * 60000
 }
 
-@Component({components:{Carousel,Slide, Messenger, MessageCircleIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpRightIcon, LogOutIcon}})
+@Component({components:{ Tooltip, Carousel,Slide, Messenger, MessageCircleIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpRightIcon, LogOutIcon, GridIcon, ImageIcon }})
 export default class Collage extends Vue {
   // fullScreen = false
   day         : number | null = null
@@ -99,6 +80,12 @@ export default class Collage extends Vue {
   logout(){
     store.logout()
     this.$router.push({name:'Login'})
+  }
+  carousel(){
+    this.$router.push({name:'Home'})
+  }
+  chooseAlbum(){
+    this.$router.push({name:'ManageHome'})
   }
 
   nextPage(){
@@ -155,7 +142,7 @@ export default class Collage extends Vue {
   async getFotos(fotos : Foto[]){
     for (let foto of fotos){
       try{
-        let response = await axios.get(`${store.backendUrl}fotos/${foto.id}`,{responseType: 'arraybuffer'})
+        let response = await axios.get(`${backendUrl}/fotos/${foto.id}`,{responseType: 'arraybuffer'})
         // @ts-ignore
         this.albumFotos = { ...this.albumFotos, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
       }catch(err){console.error(err)}
@@ -166,7 +153,7 @@ export default class Collage extends Vue {
   async getImagesForToday(){
     if(!this.day) return 
     try{
-      let response = await axios.get(`${store.backendUrl}album_of_the_day/${this.day}`)
+      let response = await axios.get(`${backendUrl}/album_of_the_day/${this.day}`)
       let album : Album = response.data
       await this.getFotos(album.fotos)
       this.todaysAlbum = album
@@ -174,20 +161,11 @@ export default class Collage extends Vue {
   }
 
   updateDate(){
-    let day = new Date().getDate()
-    if(this.day!=day)
-      this.day = new Date().getDate()
+    this.day = new Date().getDate()
   }
 
   created(){
-    // @ts-ignore 
-    window.onresize = ()=>{
-      this.windowSize = window.innerWidth
-    }
-
     this.updateDate()
-    // this.getImagesForToday()
-
     setTimeout(()=>{
       // update current date and check what day it is once a day
       this.updateDate()
@@ -198,6 +176,11 @@ export default class Collage extends Vue {
   mounted(){
     if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
       this.deviceIsMobile=true
+    }
+
+    // @ts-ignore 
+    window.onresize = ()=>{
+      this.windowSize = window.innerWidth
     }
   }
 }
@@ -223,6 +206,19 @@ export default class Collage extends Vue {
   --icon-background-hover: white
   --icon-border-hover: #FFA400
   --icon-color-hover: black
+
+.main-btns 
+  flex: 0 0 auto
+  box-sizing: border-box
+  display: flex
+  // width: 100vw
+  height: 70px
+  border: 1px solid red
+  justify-content: space-between
+  align-items: center
+  padding: 0 30px
+.spacer
+  flex: 0 1 80%
 
 .page
   display: flex 
@@ -332,6 +328,7 @@ export default class Collage extends Vue {
 
 
 .circle-btn, .circle-btn:focus
+  z-index: 3
   display: flex
   justify-content: center
   align-items: center
@@ -339,8 +336,8 @@ export default class Collage extends Vue {
   height: var(--button-size)
   border-radius: 50%
   outline: none
-  margin: var(--button-margin)
-  position: absolute
+  // margin: var(--button-margin)
+  // position: absolute
   color: var(--icon-color-no-hover)
 
 .messenger-btn
@@ -409,6 +406,6 @@ export default class Collage extends Vue {
   .right
     right: calc(0.05vw * 30 ) 
 
+
 </style>
 
-w

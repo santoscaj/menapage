@@ -5,7 +5,7 @@ transition( name="messenger-fade")
       p Talk to Berto anytime anywhere
       x-icon
     .chat-log( ref="chat" @click="showEmoji=false")
-      .message(v-for="message in messages" :class="{'my-message': mainUserRegex.test(message.user.alias)}") 
+      .message(v-for="message in messages" :class="{'my-message': activeUser.id == message.user.id }" :key="message.id") 
         span.user {{message.user.alias}}:
         span {{message.content}}
     .input-chat
@@ -42,7 +42,7 @@ let emojiIndex = new EmojiIndex(data)
 import 'emoji-mart-vue-fast/css/emoji-mart.css'
 import {Message} from 'view-design'
 import 'view-design/dist/styles/iview.css'
-
+import store from '@/store'
 @Component({components:{SendIcon, SmileIcon, XIcon, Picker }})
 export default class Messenger extends Vue{
 
@@ -51,11 +51,14 @@ export default class Messenger extends Vue{
 
 messages : any[] = []
 input=''
-mainUserRegex = /meni/i
 emojiIndex = emojiIndex
 showEmoji = false
 user : any = {}
 messageIsSending = false
+
+get activeUser(){
+  return store.user
+}
 
 get messagesLenght(){
   return this.messages.length
@@ -86,12 +89,12 @@ async focusOnTextArea(){
     setTimeout(()=>element.focus(), 0)
 }
 
-async getUser(){
-  try{
-    let response = await axios.get(this.url+'users?name=Brenda%20Gamino')
-    this.user = response.data
-  }catch(err){console.error(err)}
-}
+// async getUser(){
+//   try{
+//     let response = await axios.get(this.url+'users?name=Brenda%20Gamino')
+//     this.user = response.data
+//   }catch(err){console.error(err)}
+// }
 
 selectEmoji(data:any){
   this.input = this.input + data.native
@@ -116,7 +119,7 @@ stopShowing(){
 async sendMessage(){
   this.focusOnTextArea()
   if(!this.input) return 
-  this.sendSocketMessage({content:this.input, user_id: this.user.id})
+  this.sendSocketMessage({content:this.input, user_id: store.user.id})
   this.messageIsSending = true
 }
 
@@ -128,14 +131,16 @@ keypressed(e: any){
 sendSocketMessage = (data:any)=>{}
 
 mounted(){
-  this.getUser()
+  // this.getUser()
 
-  let socket = io(this.url)
+  let socket = io(this.url, {reconnection: false})
   socket.on('connect', ()=>{console.log('connected successfully')});
+  socket.on('disconnect', ()=>{console.log('disconnected')});
   socket.on('history', ( data : any )=>{this.messages = data});
   socket.on('newmessage', ( data : any )=>{this.messages.push(data)});
   
   socket.on('errormessage', ()=>{
+    // @ts-ignore 
     Message.error('there was an error with the message')
     this.messageIsSending = false
     });

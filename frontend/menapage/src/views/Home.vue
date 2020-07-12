@@ -1,5 +1,5 @@
 <template lang="pug">
-  Collage
+    Collage
 </template>
 
 <script>
@@ -7,6 +7,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Collage from '@/components/Collage.vue'
+import store from '@/store'
 
 @Component({
   components: {
@@ -14,6 +15,13 @@ import Collage from '@/components/Collage.vue'
     }
   })
 export default class Home extends Vue {
-  
+  get user(){
+    return store.user
+  }
 }
 </script>
+
+
+<style scoped lang="sass">
+
+</style>
