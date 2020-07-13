@@ -5,6 +5,7 @@ export interface Foto {
     date      : null | Date
     visited   : boolean
     albumId   : number
+    prize     ?: boolean
     caption   : string
     createdAt : null | Date
     updatedAt : null | Date
@@ -28,7 +29,6 @@ export interface Album {
     dirname   : string
     name      : null | string
     day       : number
-    prize     : boolean
     createdAt : null | Date 
     updatedAt : null | Date 
     fotos     : Foto[]
@@ -40,7 +40,6 @@ export function emptyAlbum() : Album{
         dirname   : '',
         name      : null,
         day       : 0,
-        prize     : false,
         createdAt : null ,
         updatedAt : null ,
         fotos     : [],

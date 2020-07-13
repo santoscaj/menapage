@@ -1,9 +1,5 @@
 <template lang="pug">
 .page(
-  @mousedown="showCaption=true" 
-  @touchstart="showCaption=true" 
-  @mouseup="showCaption=false"
-  @touchend.prevent="showCaption=false"
   )
   chevron-left-icon.pagination-btns.left( v-if="!windowIsSmall" @click="prevPage()"  @touchstart="prevPage()" size="1x" :disabled="!inTransition")
   chevron-right-icon.pagination-btns.right( v-if="!windowIsSmall" @click="nextPage()" @touchstart="prevPage()" size="1x" :disabled="!inTransition")
@@ -19,16 +15,18 @@
     paginationActiveColor="#0D3B66"
     v-model="page"
     ) 
-    //- @transition-start="transitioning(true)"
-    //- @transition-end="transitioning(false)" )
-    Slide.carousel-item( v-for="foto in fotos" :loop="true" :key="foto.id" )
-      img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" ) 
-      transition( name="caption-fade" )
-        .caption-area( v-show="showCaption" )
-          .caption-block( :id="'caption-'+foto.id" )
-            .caption 
-              p {{foto.caption}}
-              p.date {{foto.date}}
+    Slide.carousel-item( v-for="foto in fotosToShow" :loop="true" :key="foto.id" )
+      img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" 
+        @mousedown="startCaption(foto.id)" 
+        @touchstart="startCaption(foto.id)" 
+        @mouseup="endCaption()"
+        @touchend.prevent="endCaption()"
+      ) 
+      .caption-area( :class="{invisible: !showCaption}" )
+        .caption-block( :id="'caption-'+foto.id" )
+          .caption 
+            p {{foto.caption}}
+            p.date {{foto.date}}
   Messenger( v-model="showMessenger" @touchstart="touchToClick")
   button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
@@ -60,11 +58,13 @@ function getTimeLeftToNextDay(){
   return hoursLeft * 3600000 + minutesLeft * 60000
 }
 
+
+
 @Component({components:{Carousel,Slide, Messenger, MessageCircleIcon, ChevronLeftIcon, ChevronRightIcon, ArrowUpRightIcon, LogOutIcon}})
 export default class Collage extends Vue {
   // fullScreen = false
   day         : number | null = null
-  todaysAlbum : Album  = emptyAlbum()
+  // todaysAlbum : Album  = emptyAlbum()
   albumFotos  : Object = {} 
   imageSizes  : ImageSize = {}
   showCaption     = false
@@ -73,6 +73,30 @@ export default class Collage extends Vue {
   page = 0
   windowSize = window.innerWidth
   inTransition    = false
+  timeout         = 0
+  fotos           = []
+
+  async markAsRead(id:number){
+    if(!id) return 
+    let index = this.fotos.findIndex((f:Foto)=>f.id ==id)
+    if(index>-1){
+      // @ts-ignore 
+      this.fotos[index].visited  = true
+    }
+
+  }
+
+  startCaption(id: number){
+    this.showCaption = true
+    this.timeout = setTimeout(()=>{
+      this.markAsRead(id)
+      }, 1000)
+  }
+
+  endCaption(){
+    this.showCaption = false
+    clearTimeout(this.timeout)
+  }
 
   get user(){
     return store.user
@@ -91,17 +115,18 @@ export default class Collage extends Vue {
   }
 
   logout(){
-    localStorage.clear()
     store.logout()
+    // localStorage.clear()
+    localStorage.removeItem('user')
     this.$router.push({name:'Login'})
   }
 
   nextPage(){
-    this.page = (this.page>=this.todaysAlbum.fotos.length - 1 ? 0 : this.page +1 )
+    this.page = (this.page>=this.fotos.length - 1 ? 0 : this.page +1 )
   }
 
   prevPage(){
-    this.page = (this.page<= 0 ? this.todaysAlbum.fotos.length -1  : this.page - 1)
+    this.page = (this.page<= 0 ? this.fotos.length -1  : this.page - 1)
   }
 
   sizeOfPic(id: number){
@@ -115,9 +140,9 @@ export default class Collage extends Vue {
         }
     }
 
-  get fotos(){
-    return this.todaysAlbum.fotos
-  }
+  // get fotos(){
+  //   return this.todaysAlbum.fotos
+  // }
 
   get windowIsSmall(){
     return this.windowSize <= 450
@@ -125,6 +150,10 @@ export default class Collage extends Vue {
 
   get rotate(){
     return (this.windowIsSmall && this.showMessenger )
+  }
+
+  get showPrize(){
+    return this.fotos.every((f:Foto)=>f.visited)
   }
 
   async setCaptions(){
@@ -147,6 +176,10 @@ export default class Collage extends Vue {
     this.setCaptions() 
   }
 
+  get fotosToShow(){
+    return this.fotos.filter((f:Foto)=>!f.prize || this.showPrize)
+  }
+
   async getFotos(fotos : Foto[]){
     for (let foto of fotos){
       try{
@@ -161,10 +194,10 @@ export default class Collage extends Vue {
   async getImagesForToday(){
     if(!this.day) return 
     try{
-      let response = await axios.get(`${store.backendUrl}album_of_the_day/${this.day}`)
-      let album : Album = response.data
-      await this.getFotos(album.fotos)
-      this.todaysAlbum = album
+      let response = await axios.get(`${store.backendUrl}fotos_of_the_day/${this.day}`)
+      let fotos = response.data
+      await this.getFotos(fotos)
+      this.fotos = fotos.map((f:Foto)=>({...f, visited: f.prize }))
     }catch(err){console.error(err)}
   }
 
@@ -276,7 +309,8 @@ export default class Collage extends Vue {
     height: auto
     object-fit: cover
 
-.caption-area 
+.caption-area
+  pointer-events: none
   font-family: 'Galada', cursive
   font-family: 'Dancing Script', cursive
   font-family: 'Yellowtail', cursive
@@ -296,6 +330,7 @@ export default class Collage extends Vue {
   width: 100%
   margin: auto
   text-align: center
+  transition: all 3s
   // width: calc(100% - 10px)
   // margin-bottom: 0
   // border: 1px solid cyan
@@ -371,15 +406,7 @@ export default class Collage extends Vue {
     color: var(--icon-color-hover)
     background-color: var(--icon-background-hover)
 
-
-
-.caption-fade-enter-active
-  transition: opacity 4s
-
-.caption-fade-leave-active 
-  transition: opacity 1s  
-
-.caption-fade-enter, .caption-fade-leave-to
+.invisible
   opacity: 0
 
 ::-webkit-scrollbar

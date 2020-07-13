@@ -68,6 +68,10 @@ function getDate(filename){
   }
 }
 
+function getPrize(filename){
+  return /prize/.test(filename)
+}
+
 async function addAlbumsToDb(albums){
   printedAlready = false
   for (let album of albums){
@@ -76,7 +80,8 @@ async function addAlbumsToDb(albums){
       let dbAlbum = await Album.findOrCreate({where:{ dirname, day }})
       for(let foto of album.fotos){
         let date = getDate(foto)
-        await Foto.findOrCreate({where:{date, filename:foto, album_id: dbAlbum[0].id}})
+        let prize = getPrize(foto)
+        await Foto.findOrCreate({where:{date, prize, filename:foto, album_id: dbAlbum[0].id}})
       }
     }catch(err){
       if(err.message=='Validation error' && !printedAlready){
@@ -103,10 +108,6 @@ Album.init({
     type: DataTypes.INTEGER, 
     allowNull: false,
   },
-  prize: {
-    type: DataTypes.BOOLEAN, 
-    defaultValue: false,
-  }
 }, { sequelize, modelName: 'album' });
     
 
@@ -123,9 +124,13 @@ Foto.init({
     type: DataTypes.INTEGER,
     defaultValue: 20
   },
-  visited: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
+  // visited: {
+  //     type: DataTypes.BOOLEAN,
+  //     defaultValue: false
+  // },
+  prize: {
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false,
   },    
   album_id: {
     type: DataTypes.INTEGER,

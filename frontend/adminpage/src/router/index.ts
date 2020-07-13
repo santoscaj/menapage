@@ -32,13 +32,12 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next)=>{
-  let loginUser = store.user || localStorage.getItem('user')
-  
+  let loginUserId : any = store.user.id || (JSON.parse(localStorage.getItem('user') || '{id:0}').id) 
   if(to.name==from.name)
     next(false)
-  else if(!loginUser && to.name!='Login')
+  else if(!loginUserId && to.name!='Login')
     next({name:'Login'})
-  else if(loginUser && to.name=='Login')
+  else if(loginUserId && to.name=='Login')
     next({name:'Home'})
   else
     next()
