@@ -122,11 +122,11 @@ export default class Collage extends Vue {
   }
 
   nextPage(){
-    this.page = (this.page>=this.fotos.length - 1 ? 0 : this.page +1 )
+    this.page = (this.page>=this.fotosToShow.length - 1 ? 0 : this.page +1 )
   }
 
   prevPage(){
-    this.page = (this.page<= 0 ? this.fotos.length -1  : this.page - 1)
+    this.page = (this.page<= 0 ? this.fotosToShow.length -1  : this.page - 1)
   }
 
   sizeOfPic(id: number){

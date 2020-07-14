@@ -2,6 +2,7 @@
     "name":"menapage",
     "short_name":"menapage",
     "theme_color":"#FFA400",
+    "gcm_sender_id":"953041820126",
     "icons":[
        {
           "src":"./img/icons/android-chrome-192x192.png",
@@ -26,7 +27,7 @@
           "purpose":"maskable"
        }
     ],
-    "start_url":"https://gaminob.santosaj.com",
+    "start_url":".",
     "display":"standalone",
     "background_color":"#000000"
  }
