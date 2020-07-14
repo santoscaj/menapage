@@ -81,7 +81,10 @@ async function addAlbumsToDb(albums){
       for(let foto of album.fotos){
         let date = getDate(foto)
         let prize = getPrize(foto)
-        await Foto.findOrCreate({where:{date, prize, filename:foto, album_id: dbAlbum[0].id}})
+        if(prize)
+          await Foto.findOrCreate({where:{date, prize, caption: 'Surprise picture of the day' , filename:foto, album_id: dbAlbum[0].id}})
+        else
+          await Foto.findOrCreate({where:{date, prize, filename:foto, album_id: dbAlbum[0].id}})
       }
     }catch(err){
       if(err.message=='Validation error' && !printedAlready){

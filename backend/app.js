@@ -11,7 +11,7 @@ const io = require('socket.io')(server);
 const socketConnections  = require('./sockets')(io)
 
 app.use(bodyParser.json())
-app.use(cors({origin:'http://localhost:8080'}))
+app.use(cors({origin:['http://localhost:8080','http://127.0.0.1:8887' ]}))
 app.use(router)
 
 server.listen(3000)
