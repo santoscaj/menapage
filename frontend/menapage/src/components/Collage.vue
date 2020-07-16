@@ -27,7 +27,7 @@
           .caption 
             p {{foto.caption}}
             p.date {{foto.date}}
-  Messenger( v-model="showMessenger" @touchstart="touchToClick" :url="store.backendUrl")
+  Messenger( v-model="showMessenger" @touchstart="touchToClick" :url="backendUrl")
   button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
   button.circle-btn.logout-btn( @click="logout()" ) 
@@ -84,6 +84,10 @@ export default class Collage extends Vue {
       this.fotos[index].visited  = true
     }
 
+  }
+
+  get backendUrl(){
+    return store.backendUrl
   }
 
   startCaption(id: number){
@@ -183,7 +187,7 @@ export default class Collage extends Vue {
   async getFotos(fotos : Foto[]){
     for (let foto of fotos){
       try{
-        let response = await axios.get(`${store.backendUrl}fotos/${foto.id}`,{responseType: 'arraybuffer'})
+        let response = await axios.get(`fotos/${foto.id}`,{responseType: 'arraybuffer'})
         // @ts-ignore
         this.albumFotos = { ...this.albumFotos, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
       }catch(err){console.error(err)}
@@ -194,7 +198,7 @@ export default class Collage extends Vue {
   async getImagesForToday(){
     if(!this.day) return 
     try{
-      let response = await axios.get(`${store.backendUrl}fotos_of_the_day/${this.day}`)
+      let response = await axios.get(`fotos_of_the_day/${this.day}`)
       let fotos = response.data
       await this.getFotos(fotos)
       this.fotos = fotos.map((f:Foto)=>({...f, visited: f.prize }))
