@@ -12,7 +12,8 @@ const socketConnections  = require('./sockets')(io)
 
 app.use(bodyParser.json())
 app.use(cors({origin:['http://localhost:8080',
-                    'https://gaminob.santosaj.com','http://gaminob.santosaj.com'    ]}))
+                    'https://gaminob.santosaj.com','http://gaminob.santosaj.com' ,
+                    'https://adminmenapage.santosaj.com','http://adminmenapage.santosaj.com'    ]}))
 app.use(router)
 
 server.listen(3000)

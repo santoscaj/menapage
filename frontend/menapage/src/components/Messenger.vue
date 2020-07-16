@@ -1,7 +1,7 @@
 <template lang="pug">
 transition( name="messenger-fade")
   .messenger(v-if="value" )
-    .title( @click="stopShowing()" @touchstart="stopShowing()" @touch="stopShowing()") 
+    .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
       x-icon
     .chat-log( ref="chat" @click="showEmoji=false")
@@ -48,7 +48,7 @@ import store from '@/store'
 export default class Messenger extends Vue{
 
 @Prop() value! : boolean
-@Prop({default:"http://localhost:3000/"}) url! : string
+@Prop({default:'https://apimenapage.santosaj.com/'}) url! : string
 
 messages : any[] = []
 input=''

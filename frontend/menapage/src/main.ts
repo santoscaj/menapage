@@ -3,6 +3,7 @@ import _Vue from "../node_modules/vue/types"
 import App from './App.vue'
 import router from '@/router'
 import './registerServiceWorker'
+import './axios'
 
 import { Input, Button, Table } from 'view-design'
 import 'view-design/dist/styles/iview.css'
