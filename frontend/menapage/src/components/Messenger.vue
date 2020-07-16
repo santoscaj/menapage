@@ -1,5 +1,5 @@
 <template lang="pug">
-transition( name="messenger-fade")
+  //- transition( name="messenger-fade")
   .messenger(v-if="value" )
     .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
@@ -21,9 +21,20 @@ transition( name="messenger-fade")
           set="facebook"
         )
         //- @touchstart.native="clickMe"
-      textarea.input-text( ref="textarea" :draggable="false" :disabled="messageIsSending" v-model="input" @keyup="keypressed" @touchstart.stop="clickMe")
+      textarea.input-text( 
+        ref="textarea" 
+        :draggable="false" 
+        :disabled="messageIsSending" 
+        v-model="input" 
+        @keyup="keypressed" 
+        @touchstart.stop="clickMe"
+        @click="showEmoji=false")
       .btns-area
-        button(@click="showEmoji=!showEmoji" @touchstart="showEmoji=!showEmoji") 
+        button(
+          @click="showEmoji=!showEmoji" 
+          @touchstart="showEmoji=!showEmoji"
+          @touch="showEmoji=!showEmoji"
+          ) 
           smile-icon
         button( @click="sendMessage()" @touchstart="sendMessage()")
           send-icon
@@ -310,7 +321,7 @@ mounted(){
   border-radius: 5px
   overflow: hidden
   border-radius: 0 0 10px 0
-  &>button
+  &>button, button:focus
     display: flex
     justify-content: center
     align-items: center

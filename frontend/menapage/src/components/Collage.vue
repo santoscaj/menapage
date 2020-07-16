@@ -19,6 +19,7 @@
       img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" 
         @mousedown="startCaption(foto.id)" 
         @touchstart="startCaption(foto.id)" 
+        @contextmenu.prevent=""
         @mouseup="endCaption()"
         @touchend.prevent="endCaption()"
       ) 
