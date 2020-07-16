@@ -102,7 +102,7 @@ export default class ManagePage extends Vue {
   padding: 20px 30px
   border-radius: 5px
   background: rgb(255,255,255,0.1)
-  margin-bottom: 150px
+  // margin-bottom: 150px
   &>p
     font-weight: 700
     font-size: 14px
