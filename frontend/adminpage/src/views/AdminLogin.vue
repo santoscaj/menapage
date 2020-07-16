@@ -26,6 +26,8 @@ export default class ManagePage extends Vue {
   password=''
   users = []
 
+  
+
   checkEnter(e){
     if(e.keyCode==13)
       this.login()
@@ -42,7 +44,7 @@ export default class ManagePage extends Vue {
     
     store.setUser(user)
     if(user.id)
-      this.$router.push({name:'Home'})
+      this.$router.push({name:'ManageHome'})
   }
 
   async mounted(){

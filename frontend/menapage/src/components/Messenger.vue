@@ -12,7 +12,7 @@ transition( name="messenger-fade")
       picker.emoji-picker(
         v-show="showEmoji" 
         @select="selectEmoji" 
-        @touchstart.native="clickMe"
+        @contextmenu.prevent=""
           :data="emojiIndex"
           :perLine="9"
           title="Berto loves meni"
@@ -20,6 +20,7 @@ transition( name="messenger-fade")
           color="darkorange"
           set="facebook"
         )
+        //- @touchstart.native="clickMe"
       textarea.input-text( ref="textarea" :draggable="false" :disabled="messageIsSending" v-model="input" @keyup="keypressed" @touchstart.stop="clickMe")
       .btns-area
         button(@click="showEmoji=!showEmoji" @touchstart="showEmoji=!showEmoji") 
@@ -56,6 +57,7 @@ emojiIndex = emojiIndex
 showEmoji = false
 // user : any = {}
 messageIsSending = false
+
 
 get activeUser(){
   return store.user
