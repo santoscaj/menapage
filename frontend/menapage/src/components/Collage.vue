@@ -27,7 +27,7 @@
           .caption 
             p {{foto.caption}}
             p.date {{foto.date}}
-  Messenger( v-model="showMessenger" @touchstart="touchToClick")
+  Messenger( v-model="showMessenger" @touchstart="touchToClick" :url="store.backendUrl")
   button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
   button.circle-btn.logout-btn( @click="logout()" ) 

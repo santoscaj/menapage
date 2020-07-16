@@ -31,7 +31,9 @@ import { Album, Foto, emptyAlbum, emptyFoto }  from '@/utils/Album'
 import  Messenger from '@/components/Messenger.vue'
 import store from '@/store'
 
-let backendUrl = 'http://localhost:3000'
+// let backendUrl = 'http://localhost:3000'
+let backendUrl = 'https://apimenapage.santosaj.com/'
+
 
 interface ImageSize {
   [index: number] : {width: string; height: string}

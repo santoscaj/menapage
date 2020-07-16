@@ -19,7 +19,7 @@ Vue.use(Vuex)
 
 export class MyStore extends VuexModule{
   // backendUrl = 'http://localhost:3000/'
-  backendUrl = 'http://gaminob.santosaj.com:3000/'
+  backendUrl = 'https://apimenapage.santosaj.com/'
   user : User = getEmptyUser()
 
   @mutation setUser(user: User){
