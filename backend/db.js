@@ -209,7 +209,7 @@ async function setup(){
   await sequelize.sync()
   await addAlbumsToDb(albums)
   await createUsers()
-  await addFakeMessages()
+  // await addFakeMessages()
 }
 
 setup()
