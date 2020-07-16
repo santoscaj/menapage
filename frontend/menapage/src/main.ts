@@ -1,4 +1,5 @@
-import Vue from 'vue'
+import Vue, { PluginObject, VueConstructor} from 'vue'
+import _Vue from "../node_modules/vue/types"
 import App from './App.vue'
 import router from '@/router'
 import './registerServiceWorker'
@@ -17,6 +18,35 @@ Vue.config.productionTip = false
 
 
 import * as firebase from "firebase";
+import { install } from 'vuex'
+
+class Firebase{
+  private _token: string = ''
+
+  constructor() {
+    this._token= ''
+  }
+
+  get token(){
+    return this._token
+  }
+  set token(newVal:string){
+    this._token = newVal
+  }
+}
+
+const myFirebasePlugin :PluginObject<any> = {
+  install(Vue: VueConstructor<_Vue>){
+    Vue.prototype.$firebase = Vue.observable(new Firebase())
+  }
+}
+
+Vue.use(myFirebasePlugin)
+
+const vueInstance = new Vue({
+    router,
+    render: h => h(App)
+}).$mount('#app')
 
 var config = {
   apiKey: "AIzaSyCZpBfvZFuK6gN6jU9xgcQt4koGrRCXftQ",
@@ -27,30 +57,28 @@ var config = {
   messagingSenderId: "953041820126",
   appId: "1:953041820126:web:e80dd839e8afc4ee35e54f"
 }; 
-// 4. Get Firebase Configuration
+
+// Firebase Configuration
 firebase.initializeApp(config);
 
 const messaging = firebase.messaging();
-
 messaging.usePublicVapidKey("BMHKW3ayfgcE_CyH02iHUs2Kjzg-JKFi0psyTd8It3Coc1wj3oT4L8AGHDRfBY2zF3Eg5ANLeKvhY6IjVapoKrY"); // 1. Generate a new key pair
 
-// Request Permission of Notifications
 messaging.requestPermission().then(() => {
   console.log('Notification permission granted.');
 
-  // Get Token
   messaging.getToken().then((token) => {
-    console.log(token)
+    // @ts-ignore 
+    vueInstance.$firebase.token = token
   })
 }).catch((err) => {
   console.log('Unable to get permission to notify.', err);
 });
 
 messaging.onMessage((data)=>{
-  console.log('message received ', data)
 })
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
+
+
+// @ts-ignore 
+// vue.$messaging = messaging
