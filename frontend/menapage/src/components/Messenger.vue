@@ -1,6 +1,6 @@
 <template lang="pug">
   //- transition( name="messenger-fade")
-  .messenger(v-if="value" )
+  .messenger(v-show="value" )
     .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
       x-icon
@@ -236,6 +236,7 @@ mounted(){
   color: white
   padding: 3px 10px
   border-radius:  var(--border-radius) var(--border-radius) 0 0
+  border: 1px solid white
   &:hover
     color: white
 
@@ -344,11 +345,11 @@ mounted(){
   margin-bottom: 1px
   // z-index: 1
 
-.messenger-fade-enter-active, .messenger-fade-leave-active 
-  transition: opacity 0.4s
+// .messenger-fade-enter-active, .messenger-fade-leave-active 
+//   transition: opacity 0.4s
 
-.messenger-fade-enter, .messenger-fade-leave-to
-  opacity: 0
+// .messenger-fade-enter, .messenger-fade-leave-to
+//   opacity: 0
 
 @media (max-width: 450px)
   .messenger
