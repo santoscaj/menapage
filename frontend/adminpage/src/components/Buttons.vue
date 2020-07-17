@@ -31,8 +31,6 @@ import { Album, Foto, emptyAlbum, emptyFoto }  from '@/utils/Album'
 import  Messenger from '@/components/Messenger.vue'
 import store from '@/store'
 
-let backendUrl = 'http://localhost:3000'
-
 interface ImageSize {
   [index: number] : {width: string; height: string}
 }
@@ -143,7 +141,7 @@ export default class Collage extends Vue {
   async getFotos(fotos : Foto[]){
     for (let foto of fotos){
       try{
-        let response = await axios.get(`${backendUrl}/fotos/${foto.id}`,{responseType: 'arraybuffer'})
+        let response = await axios.get(`fotos/${foto.id}`,{responseType: 'arraybuffer'})
         // @ts-ignore
         this.albumFotos = { ...this.albumFotos, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
       }catch(err){console.error(err)}
@@ -154,7 +152,7 @@ export default class Collage extends Vue {
   async getImagesForToday(){
     if(!this.day) return 
     try{
-      let response = await axios.get(`${backendUrl}/album_of_the_day/${this.day}`)
+      let response = await axios.get(`album_of_the_day/${this.day}`)
       let album : Album = response.data
       await this.getFotos(album.fotos)
       this.todaysAlbum = album

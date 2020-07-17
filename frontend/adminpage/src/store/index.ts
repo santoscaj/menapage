@@ -18,7 +18,6 @@ function getEmptyUser(){
 Vue.use(Vuex)
 
 export class MyStore extends VuexModule{
-  backendUrl = 'http://localhost:3000/'
   user : User = getEmptyUser()
 
   @mutation setUser(user: User){

@@ -1,7 +1,7 @@
 <template lang="pug">
-transition( name="messenger-fade")
-  .messenger(v-if="value" )
-    .title( @click="stopShowing()" @touchstart="stopShowing()" @touch="stopShowing()") 
+  //- transition( name="messenger-fade")
+  .messenger(v-show="value" )
+    .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
       x-icon
     //- .wrapper
@@ -13,7 +13,7 @@ transition( name="messenger-fade")
       picker.emoji-picker(
         v-show="showEmoji" 
         @select="selectEmoji" 
-        @touchstart.native="clickMe"
+        @contextmenu.prevent=""
           :data="emojiIndex"
           :perLine="9"
           title="Berto loves meni"
@@ -21,9 +21,19 @@ transition( name="messenger-fade")
           color="darkorange"
           set="facebook"
         )
-      textarea.input-text( ref="textarea" :draggable="false" :disabled="messageIsSending" v-model="input" @keyup="keypressed" @touchstart.stop="clickMe")
+        //- @touchstart.native="clickMe"
+      textarea.input-text( 
+        ref="textarea" 
+        :draggable="false" 
+        :disabled="messageIsSending" 
+        v-model="input" 
+        @keyup="keypressed" 
+        @touchstart.stop="clickMe"
+        @click="showEmoji=false")
       .btns-area
-        button(@click="showEmoji=!showEmoji" @touchstart.prevent="showEmoji=!showEmoji") 
+        button(
+          @click="showEmoji=!showEmoji" 
+          @touchstart.prevent="showEmoji=!showEmoji") 
           smile-icon
         button( @click="sendMessage()" @touchstart.prevent="sendMessage()")
           send-icon
@@ -49,7 +59,7 @@ import store from '@/store'
 export default class Messenger extends Vue{
 
 @Prop() value! : boolean
-@Prop({default:"http://localhost:3000/"}) url! : string
+@Prop({default:'https://apimenapage.santosaj.com/'}) url! : string
 
 messages : any[] = []
 input=''
@@ -57,6 +67,7 @@ emojiIndex = emojiIndex
 showEmoji = false
 // user : any = {}
 messageIsSending = false
+
 
 get activeUser(){
   return store.user
@@ -224,6 +235,7 @@ mounted(){
   color: white
   padding: 3px 10px
   border-radius:  var(--border-radius) var(--border-radius) 0 0
+  border: 1px solid white
   &:hover
     color: white
 
@@ -311,7 +323,7 @@ mounted(){
   border-radius: 5px
   overflow: hidden
   border-radius: 0 0 10px 0
-  &>button
+  &>button, button:focus
     display: flex
     justify-content: center
     align-items: center
@@ -334,11 +346,11 @@ mounted(){
   margin-bottom: 1px
   // z-index: 1
 
-.messenger-fade-enter-active, .messenger-fade-leave-active 
-  transition: opacity 0.4s
+// .messenger-fade-enter-active, .messenger-fade-leave-active 
+//   transition: opacity 0.4s
 
-.messenger-fade-enter, .messenger-fade-leave-to
-  opacity: 0
+// .messenger-fade-enter, .messenger-fade-leave-to
+//   opacity: 0
 
 .wrapper
   display: flex

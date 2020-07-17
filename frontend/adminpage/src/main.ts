@@ -5,6 +5,7 @@ import {store} from './store'
 import './registerServiceWorker'
 import {Input, Button, Table} from 'view-design';
 import 'view-design/dist/styles/iview.css'
+import './axios'
 
 Vue.component('Input', Input)
 Vue.component('Button', Button)

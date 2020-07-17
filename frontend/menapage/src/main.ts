@@ -3,10 +3,10 @@ import _Vue from "../node_modules/vue/types"
 import App from './App.vue'
 import router from '@/router'
 import './registerServiceWorker'
+import './axios'
 
 import { Input, Button, Table } from 'view-design'
 import 'view-design/dist/styles/iview.css'
-
 Vue.component('Input', Input)
 Vue.component('Button', Button )
 Vue.component('Table', Table)
@@ -14,8 +14,6 @@ Vue.component('Table', Table)
 import Chat from 'vue-beautiful-chat'
 Vue.use(Chat)
 Vue.config.productionTip = false
-// Vue.config.devtools = true
-
 
 import * as firebase from "firebase";
 import { install } from 'vuex'
@@ -42,11 +40,6 @@ const myFirebasePlugin :PluginObject<any> = {
 }
 
 Vue.use(myFirebasePlugin)
-
-require('dotenv').config()
-;(()=>{
-  console.log('output directory is ', process.env.OUTDIR)
-})()
 
 const vueInstance = new Vue({
     router,
@@ -82,8 +75,3 @@ messaging.requestPermission().then(() => {
 
 messaging.onMessage((data)=>{
 })
-
-
-
-// @ts-ignore 
-// vue.$messaging = messaging

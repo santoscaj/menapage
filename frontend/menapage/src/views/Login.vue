@@ -48,7 +48,7 @@ export default class ManagePage extends Vue {
 
   async mounted(){
   try{
-    let response = await axios.get(store.backendUrl+'users')
+    let response = await axios.get('users')
     this.users = response.data
   }catch(err){console.error(err)}
     // try{

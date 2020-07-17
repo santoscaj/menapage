@@ -42,7 +42,7 @@ export default class ManagePage extends Vue {
     
     store.setUser(user)
     if(user.id)
-      this.$router.push({name:'Home'})
+      this.$router.push({name:'ManageHome'})
   }
 
   async mounted(){
@@ -87,7 +87,6 @@ export default class ManagePage extends Vue {
     outline: none
     border: 1px solid black
   
-
 .login-btn
   background: orange
   padding: 5px

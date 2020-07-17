@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { createModule, mutation, action, extractVuexModule , createProxy} from "vuex-class-component";
- 
+require('dotenv').config()
+
 const VuexModule = createModule({})
 Vue.use(Vuex)
 interface User {
@@ -18,8 +19,7 @@ function getEmptyUser(){
 Vue.use(Vuex)
 
 export class MyStore extends VuexModule{
-  backendUrl = 'http://localhost:3000/'
-  // backendUrl = 'http://gaminob.santosaj.com:3000/'
+  backendUrl = process.env.BACKEND
   user : User = getEmptyUser()
 
   @mutation setUser(user: User){
