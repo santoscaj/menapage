@@ -26,8 +26,6 @@ export default class ManagePage extends Vue {
   password=''
   users = []
 
-  
-
   checkEnter(e){
     if(e.keyCode==13)
       this.login()
@@ -89,7 +87,6 @@ export default class ManagePage extends Vue {
     outline: none
     border: 1px solid black
   
-
 .login-btn
   background: orange
   padding: 5px

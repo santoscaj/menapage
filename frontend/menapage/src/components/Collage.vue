@@ -69,7 +69,7 @@ export default class Collage extends Vue {
   albumFotos  : Object = {} 
   imageSizes  : ImageSize = {}
   showCaption     = false
-  deviceIsMobile  = false
+  mobileDevice  = false
   showMessenger   = false
   page = 0
   windowSize = window.innerWidth
@@ -178,7 +178,8 @@ export default class Collage extends Vue {
   }
 
   updated(){
-    this.setCaptions() 
+    if(!this.mobileDevice)
+      this.setCaptions() 
   }
 
   get fotosToShow(){
@@ -214,9 +215,9 @@ export default class Collage extends Vue {
 
   created(){
     // @ts-ignore 
-    window.onresize = ()=>{
-      this.windowSize = window.innerWidth
-    }
+    // window.onresize = ()=>{
+    //   this.windowSize = window.innerWidth
+    // }
 
     this.updateDate()
     // this.getImagesForToday()
@@ -229,9 +230,22 @@ export default class Collage extends Vue {
   }
 
   mounted(){
-    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-      this.deviceIsMobile=true
-    }
+    let mobileDevice = false
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
+      this.mobileDevice=true
+    if(mobileDevice)
+      window.addEventListener('popstate', event=>{
+        if(event){
+          if(!this.showMessenger)
+            history.back()
+          else{
+            this.showMessenger = false
+          }
+          history.pushState(null, '', window.location.pathname)
+        }
+      })
+
+    this.mobileDevice = mobileDevice
   }
 }
 </script>
@@ -294,6 +308,10 @@ export default class Collage extends Vue {
   // padding: 20px
   box-sizing: border-box
   width: 100%
+  -webkit-transition: height 0.7s ease-out, width 0.7s ease
+  -moz-transition: height 0.7s ease-out, width 0.7s ease
+  -o-transition: height 0.7s ease-out, width 0.7s ease
+  transition: height 0.7s ease-out, width 0.7s ease
 
 .carousel-item
   display: flex
