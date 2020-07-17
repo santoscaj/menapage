@@ -27,6 +27,7 @@ async function sendNotification(list, title, body){
       }
 }
 
+
 async function notifyMessage(messageSender, message){
   let body = message.content
   let sender = messageSender || {alias:'', name:'', id:''}
@@ -46,10 +47,24 @@ function printAllUsers(){
 
 module.exports =  function(io){
     // console.log(Object.keys(io.sockets.connected))
-
     io.on('connection', async socket => { 
         console.log(`Connected socket ${socket.id}! active connections ${Object.keys(io.sockets.connected).length}`)
         activeSockets.push(socket)
+
+        let lastMessage = {content:'', user_id:0, sent_at: new Date()}
+        function messageIdDuplicate(message){
+            let messageIsTheSame = message.content == lastMessage.content && message.user_id == lastMessage.user_id
+            let timeDiff = 0
+            if(messageIsTheSame)
+                timeDiff = new Date().getTime() - lastMessage.sent_at.getTime()                
+
+            if(messageIsTheSame && timeDiff <= 1000)
+                return true
+            else
+                lastMessage = {content: message.content, user_id: message.user_id , sent_at: new Date()}
+
+            return  false
+        }
 
         try{
             let messages = await Message.findAll({include:[User]})
@@ -81,8 +96,11 @@ module.exports =  function(io){
             socket.disconnect()
             console.log(`Disconnecting ${socket.id}! active connections: ${Object.keys(io.sockets.connected).length}`)
         });
-
+        
         socket.on('newmessage', async function(data){
+            if(messageIdDuplicate(data, lastMessage))
+                return
+
             try{
                 let dbMessage = await Message.create({...data})
                 let newMessage = await Message.findOne({where:{id:dbMessage.id}, include: User})

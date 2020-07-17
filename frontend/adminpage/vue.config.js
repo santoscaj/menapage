@@ -1,5 +1,5 @@
 
 require('dotenv').config()
 module.exports = {
-    outputDir: process.env.OUTDIR,
+    outputDir: process.env.VUE_APP_OUTDIR,
   }

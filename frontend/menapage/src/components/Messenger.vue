@@ -1,7 +1,7 @@
 <template lang="pug">
-transition( name="messenger-fade")
-  .messenger(v-if="value" )
-    .title( @click="stopShowing()" @touchstart="stopShowing()" @touch="stopShowing()") 
+  //- transition( name="messenger-fade")
+  .messenger(v-show="value" )
+    .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
       x-icon
     //- .wrapper
@@ -13,7 +13,7 @@ transition( name="messenger-fade")
       picker.emoji-picker(
         v-show="showEmoji" 
         @select="selectEmoji" 
-        @touchstart.native="clickMe"
+        @contextmenu.prevent=""
           :data="emojiIndex"
           :perLine="9"
           title="Berto loves meni"
@@ -21,9 +21,19 @@ transition( name="messenger-fade")
           color="darkorange"
           set="facebook"
         )
-      textarea.input-text( ref="textarea" :draggable="false" :disabled="messageIsSending" v-model="input" @keyup="keypressed" @touchstart.stop="clickMe")
+        //- @touchstart.native="clickMe"
+      textarea.input-text( 
+        ref="textarea" 
+        :draggable="false" 
+        :disabled="messageIsSending" 
+        v-model="input" 
+        @keyup="keypressed" 
+        @touchstart.stop="clickMe"
+        @click="showEmoji=false")
       .btns-area
-        button(@click="showEmoji=!showEmoji" @touchstart.prevent="showEmoji=!showEmoji") 
+        button(
+          @click="showEmoji=!showEmoji" 
+          @touchstart.prevent="showEmoji=!showEmoji") 
           smile-icon
         button( @click="sendMessage()" @touchstart.prevent="sendMessage()")
           send-icon
@@ -49,7 +59,7 @@ import store from '@/store'
 export default class Messenger extends Vue{
 
 @Prop() value! : boolean
-@Prop({default:"http://localhost:3000/"}) url! : string
+@Prop({default:'https://apimenapage.santosaj.com/'}) url! : string
 
 messages : any[] = []
 input=''
@@ -57,6 +67,7 @@ emojiIndex = emojiIndex
 showEmoji = false
 // user : any = {}
 messageIsSending = false
+
 
 get activeUser(){
   return store.user
@@ -86,15 +97,15 @@ userUpdate(){
 
 @Watch('value')
 async scrollToBottom(newVal : boolean, oldVal:boolean){
-  // await this.$nextTick()
-  // if(newVal){
-  //   let element = (this.$refs.chat)
-  //   if(element){
-  //     // @ts-ignore 
-  //     element.scrollTo(0, element.scrollHeight)
-  //     this.focusOnTextArea()
-  //   }
-  // }
+  await this.$nextTick()
+  if(newVal){
+    let element = (this.$refs.chat)
+    if(element){
+      // @ts-ignore 
+      element.scrollTo(0, element.scrollHeight)
+      this.focusOnTextArea()
+    }
+  }
 }
 
 @Watch('messagesLenght')
@@ -106,7 +117,7 @@ async focusOnTextArea(){
   await this.$nextTick()
   let element = (this.$refs.textarea as HTMLElement)
   if(element)
-    setTimeout(()=>element.focus(), 0)
+    setTimeout(()=>element.focus(), 500)
 }
 
 selectEmoji(data:any){
@@ -148,11 +159,11 @@ mounted(){
 
   socket.on('connect', ()=>{
     // @ts-ignore 
-    socket.emit('firebasetoken', this.$firebase.token)
+    // socket.emit('firebasetoken', this.$firebase.token)
     socket.emit('user', this.activeUser)
   });
   socket.on('disconnect', ()=>{console.log('disconnected')});
-  socket.on('history', ( data : any )=>{this.messages = data.reverse()});
+  socket.on('history', ( data : any )=>{this.messages = data});
   socket.on('newmessage', ( data : any )=>{this.messages.push(data)});
   
   socket.on('errormessage', ()=>{
@@ -224,13 +235,14 @@ mounted(){
   color: white
   padding: 3px 10px
   border-radius:  var(--border-radius) var(--border-radius) 0 0
+  border: 1px solid white
   &:hover
     color: white
 
 .chat-log
   position: relative
   display: flex
-  flex-direction: column-reverse
+  flex-direction: column
   align-items: flex-start
   // justify-content: flex-end
   // overflow-y: scroll
@@ -311,7 +323,7 @@ mounted(){
   border-radius: 5px
   overflow: hidden
   border-radius: 0 0 10px 0
-  &>button
+  &>button, button:focus
     display: flex
     justify-content: center
     align-items: center
@@ -334,16 +346,16 @@ mounted(){
   margin-bottom: 1px
   // z-index: 1
 
-.messenger-fade-enter-active, .messenger-fade-leave-active 
-  transition: opacity 0.4s
+// .messenger-fade-enter-active, .messenger-fade-leave-active 
+//   transition: opacity 0.4s
 
-.messenger-fade-enter, .messenger-fade-leave-to
-  opacity: 0
+// .messenger-fade-enter, .messenger-fade-leave-to
+//   opacity: 0
 
-.wrapper
-  display: flex
-  overflow-y: auto
-  flex-direction: column-reverse
+// .wrapper
+//   display: flex
+//   overflow-y: auto
+//   flex-direction: column-reverse
 
 @media (max-width: 450px)
   .messenger

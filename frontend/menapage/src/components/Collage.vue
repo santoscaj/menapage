@@ -19,6 +19,7 @@
       img( :id="foto.id" :src="'data:image/jpeg;charset=utf-8;base64,' + albumFotos[foto.id]" :class="{blur:showCaption}" 
         @mousedown="startCaption(foto.id)" 
         @touchstart="startCaption(foto.id)" 
+        @contextmenu.prevent=""
         @mouseup="endCaption()"
         @touchend.prevent="endCaption()"
       ) 
@@ -27,7 +28,7 @@
           .caption 
             p {{foto.caption}}
             p.date {{foto.date}}
-  Messenger( v-model="showMessenger" @touchstart="touchToClick")
+  Messenger( v-model="showMessenger" @touchstart="touchToClick" :url="backendUrl")
   button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
   button.circle-btn.logout-btn( @click="logout()" ) 
@@ -68,7 +69,7 @@ export default class Collage extends Vue {
   albumFotos  : Object = {} 
   imageSizes  : ImageSize = {}
   showCaption     = false
-  deviceIsMobile  = false
+  mobileDevice  = false
   showMessenger   = false
   page = 0
   windowSize = window.innerWidth
@@ -84,6 +85,10 @@ export default class Collage extends Vue {
       this.fotos[index].visited  = true
     }
 
+  }
+
+  get backendUrl(){
+    return store.backendUrl
   }
 
   startCaption(id: number){
@@ -173,7 +178,8 @@ export default class Collage extends Vue {
   }
 
   updated(){
-    this.setCaptions() 
+    if(!this.mobileDevice)
+      this.setCaptions() 
   }
 
   get fotosToShow(){
@@ -183,7 +189,7 @@ export default class Collage extends Vue {
   async getFotos(fotos : Foto[]){
     for (let foto of fotos){
       try{
-        let response = await axios.get(`${store.backendUrl}fotos/${foto.id}`,{responseType: 'arraybuffer'})
+        let response = await axios.get(`fotos/${foto.id}`,{responseType: 'arraybuffer'})
         // @ts-ignore
         this.albumFotos = { ...this.albumFotos, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
       }catch(err){console.error(err)}
@@ -194,7 +200,7 @@ export default class Collage extends Vue {
   async getImagesForToday(){
     if(!this.day) return 
     try{
-      let response = await axios.get(`${store.backendUrl}fotos_of_the_day/${this.day}`)
+      let response = await axios.get(`fotos_of_the_day/${this.day}`)
       let fotos = response.data
       await this.getFotos(fotos)
       this.fotos = fotos.map((f:Foto)=>({...f, visited: f.prize }))
@@ -209,9 +215,9 @@ export default class Collage extends Vue {
 
   created(){
     // @ts-ignore 
-    window.onresize = ()=>{
-      this.windowSize = window.innerWidth
-    }
+    // window.onresize = ()=>{
+    //   this.windowSize = window.innerWidth
+    // }
 
     this.updateDate()
     // this.getImagesForToday()
@@ -224,9 +230,22 @@ export default class Collage extends Vue {
   }
 
   mounted(){
-    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-      this.deviceIsMobile=true
-    }
+    let mobileDevice = false
+    if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) 
+      this.mobileDevice=true
+    if(mobileDevice)
+      window.addEventListener('popstate', event=>{
+        if(event){
+          if(!this.showMessenger)
+            history.back()
+          else{
+            this.showMessenger = false
+          }
+          history.pushState(null, '', window.location.pathname)
+        }
+      })
+
+    this.mobileDevice = mobileDevice
   }
 }
 </script>
@@ -289,6 +308,10 @@ export default class Collage extends Vue {
   // padding: 20px
   box-sizing: border-box
   width: 100%
+  -webkit-transition: height 0.7s ease-out, width 0.7s ease
+  -moz-transition: height 0.7s ease-out, width 0.7s ease
+  -o-transition: height 0.7s ease-out, width 0.7s ease
+  transition: height 0.7s ease-out, width 0.7s ease
 
 .carousel-item
   display: flex
