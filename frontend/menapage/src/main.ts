@@ -43,6 +43,11 @@ const myFirebasePlugin :PluginObject<any> = {
 
 Vue.use(myFirebasePlugin)
 
+require('dotenv').config()
+;(()=>{
+  console.log('output directory is ', process.env.OUTDIR)
+})()
+
 const vueInstance = new Vue({
     router,
     render: h => h(App)

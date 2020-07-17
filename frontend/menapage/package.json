@@ -11,6 +11,7 @@
     "@types/socket.io-client": "^1.4.33",
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
+    "dotenv": "^8.2.0",
     "emoji-mart-vue": "^2.6.6",
     "emoji-mart-vue-fast": "^7.0.2",
     "firebase": "^7.16.0",

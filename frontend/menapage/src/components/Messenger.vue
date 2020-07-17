@@ -4,6 +4,7 @@ transition( name="messenger-fade")
     .title( @click="stopShowing()" @touchstart="stopShowing()" @touch="stopShowing()") 
       p Talk to Berto anytime anywhere
       x-icon
+    //- .wrapper
     .chat-log( ref="chat" @click="showEmoji=false")
       .message(v-for="message in messages" :class="{'my-message': activeUser.id == message.user.id }" :key="message.id") 
         span.user {{message.user.alias}}:
@@ -22,9 +23,9 @@ transition( name="messenger-fade")
         )
       textarea.input-text( ref="textarea" :draggable="false" :disabled="messageIsSending" v-model="input" @keyup="keypressed" @touchstart.stop="clickMe")
       .btns-area
-        button(@click="showEmoji=!showEmoji" @touchstart="showEmoji=!showEmoji") 
+        button(@click="showEmoji=!showEmoji" @touchstart.prevent="showEmoji=!showEmoji") 
           smile-icon
-        button( @click="sendMessage()" @touchstart="sendMessage()")
+        button( @click="sendMessage()" @touchstart.prevent="sendMessage()")
           send-icon
 </template>
 
@@ -85,15 +86,15 @@ userUpdate(){
 
 @Watch('value')
 async scrollToBottom(newVal : boolean, oldVal:boolean){
-  await this.$nextTick()
-  if(newVal){
-    let element = (this.$refs.chat)
-    if(element){
-      // @ts-ignore 
-      element.scrollTo(0, element.scrollHeight)
-      this.focusOnTextArea()
-    }
-  }
+  // await this.$nextTick()
+  // if(newVal){
+  //   let element = (this.$refs.chat)
+  //   if(element){
+  //     // @ts-ignore 
+  //     element.scrollTo(0, element.scrollHeight)
+  //     this.focusOnTextArea()
+  //   }
+  // }
 }
 
 @Watch('messagesLenght')
@@ -151,7 +152,7 @@ mounted(){
     socket.emit('user', this.activeUser)
   });
   socket.on('disconnect', ()=>{console.log('disconnected')});
-  socket.on('history', ( data : any )=>{this.messages = data});
+  socket.on('history', ( data : any )=>{this.messages = data.reverse()});
   socket.on('newmessage', ( data : any )=>{this.messages.push(data)});
   
   socket.on('errormessage', ()=>{
@@ -229,8 +230,10 @@ mounted(){
 .chat-log
   position: relative
   display: flex
-  flex-direction: column
+  flex-direction: column-reverse
   align-items: flex-start
+  // justify-content: flex-end
+  // overflow-y: scroll
   flex: 1 1 auto
   right: 0
   bottom: 0
@@ -336,6 +339,11 @@ mounted(){
 
 .messenger-fade-enter, .messenger-fade-leave-to
   opacity: 0
+
+.wrapper
+  display: flex
+  overflow-y: auto
+  flex-direction: column-reverse
 
 @media (max-width: 450px)
   .messenger
