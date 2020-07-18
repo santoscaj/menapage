@@ -7,8 +7,15 @@
     //- .wrapper
     .chat-log( ref="chat" @click="showEmoji=false")
       .message(v-for="message in messages" :class="{'my-message': activeUser.id == message.user.id }" :key="message.id") 
-        span.user {{message.user.alias}}:
-        span {{message.content}}
+        img.avatar( v-if="showAvatar && message.user.alias =='Berto'" src="@/assets/faceicons/Berto/8.jpg" :alt="message.user.name.charAt(0)")
+        img.avatar( v-if="showAvatar && message.user.alias =='Meni'" src="@/assets/faceicons/Meni/4.jpg" :alt="message.user.name.charAt(0)")
+        .message-area
+          .top-message
+            p
+              span.user {{message.user.alias}}:
+              span {{message.content}}
+          .bottom-message
+            span.date {{message.datetime}}
     .input-chat
       picker.emoji-picker(
         v-show="showEmoji" 
@@ -54,20 +61,27 @@ import 'emoji-mart-vue-fast/css/emoji-mart.css'
 import {Message} from 'view-design'
 import 'view-design/dist/styles/iview.css'
 import store from '@/store'
-
+let defaultUrl = axios.defaults.baseURL = process.env.VUE_APP_BACKEND
+require('@/assets/faceicons/Berto/0.jpg')
 @Component({components:{SendIcon, SmileIcon, XIcon, Picker }})
 export default class Messenger extends Vue{
-
 @Prop() value! : boolean
-@Prop({default:'https://apimenapage.santosaj.com/'}) url! : string
+@Prop({default: defaultUrl}) url! : string
 
 messages : any[] = []
 input=''
 emojiIndex = emojiIndex
 showEmoji = false
+showAvatar = true
 // user : any = {}
 messageIsSending = false
 
+get userImage(){
+  return {
+    'Berto' : `@/assets/faceicons/Berto/${Math.floor( Math.random() * 9).toString().trim()}.jpg`,
+    'Meni'  : `@/assets/faceicons/Meni/${Math.floor( Math.random()*9).toString().trim()}.jpg`
+  }
+}
 
 get activeUser(){
   return store.user
@@ -159,12 +173,20 @@ mounted(){
 
   socket.on('connect', ()=>{
     // @ts-ignore 
-    // socket.emit('firebasetoken', this.$firebase.token)
+    socket.emit('firebasetoken', this.$firebase.token)
     socket.emit('user', this.activeUser)
   });
   socket.on('disconnect', ()=>{console.log('disconnected')});
-  socket.on('history', ( data : any )=>{this.messages = data});
-  socket.on('newmessage', ( data : any )=>{this.messages.push(data)});
+  socket.on('history', ( data : any )=>{
+    this.messages = data.map( (x:any)=>{
+      let img = `@/assets/faceicons/Berto/0.jpg`
+      let datetime = new Date('2020-07-17T22:37:45.234Z').toLocaleString("en-US", {timeZone: "Canada/Eastern"})
+      return {...x, datetime, img}
+  })});
+  socket.on('newmessage', ( data : any )=>{
+    let datetime = new Date('2020-07-17T22:37:45.234Z').toLocaleString("en-US", {timeZone: "Canada/Eastern"}) 
+    this.messages.push({...data, datetime})
+  })
   
   socket.on('errormessage', ()=>{
     // @ts-ignore 
@@ -249,7 +271,7 @@ mounted(){
   flex: 1 1 auto
   right: 0
   bottom: 0
-  user-select: none
+  // user-select: none
   width:  100%
   height: 500px
   overflow: auto
@@ -257,10 +279,15 @@ mounted(){
   background: rgb(255,255,255,0.4)
   padding-bottom: 5px
 
+.avatar
+  width: 20px
+  height: 20px
+  border-radius: 50%
+  margin: 0 5px
+
 .message
   width: auto
   margin: 5px
-  // margin-bottom: 0
   font-size: 14px
   line-height: 17px
   padding: 7px 12px
@@ -269,9 +296,9 @@ mounted(){
   border: 1px solid purple
   border: 1px solid var(--secondary-color)
   color: black
-  // color: var(--secondary-color)
   margin-right: 60px
   border-radius: 0 10px 10px 10px 
+  display: flex
 
 .my-message
   align-self: flex-end
@@ -284,9 +311,21 @@ mounted(){
   margin-left: 60px
   border-radius: 10px 0 10px 10px 
 
+.date
+  font-size: 9px
+  color: gray
+  font-weight: 600
+  padding: 1px
+
 .user
   font-weight: 700
   padding-right: 5px
+
+.top-message
+  display: flex
+
+// .bottom-message
+
 
 .input-chat
   background: white
