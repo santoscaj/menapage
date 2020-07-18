@@ -215,9 +215,9 @@ export default class Collage extends Vue {
 
   created(){
     // @ts-ignore 
-    // window.onresize = ()=>{
-    //   this.windowSize = window.innerWidth
-    // }
+    window.onresize = ()=>{
+      this.windowSize = window.innerWidth
+    }
 
     this.updateDate()
     // this.getImagesForToday()
@@ -374,8 +374,8 @@ export default class Collage extends Vue {
   transition: all 1.5s
 
 .caption
-  font-size: 1.9vh
-  line-height: 2.8vh
+  font-size: 2.5vh
+  line-height: 3vh
   color: salmon
   color: coral
   color: white

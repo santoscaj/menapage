@@ -86,7 +86,7 @@ router.get('/album_of_the_day/:day', async (req, res)=>{
 
 router.get('/fotos_of_the_day/:day', async (req, res)=>{
     if(!req.params.day) return res.sendStatus(401)
-    fotos = await Foto.findAll({where:{}, include: {model: Album, where:{day:req.params.day} }})
+    fotos = await Foto.findAll({where:{}, order:['position'], include: {model: Album, where:{day:req.params.day} }})
     if(!fotos) return res.sendStatus(404)
     res.json(fotos)
 })
