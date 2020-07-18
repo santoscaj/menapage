@@ -114,13 +114,13 @@ tableColumns = [
   @Watch('thisPage')
   async getFotos(){
     try{
-      let response = await axios.get(`${store.backendUrl}fotos_of_the_day/${this.albumDay}`)
+      let response = await axios.get(`fotos_of_the_day/${this.albumDay}`)
       // @ts-ignore 
       this.fotos = response.data.map(foto=>({ ...foto, album: foto.album.dirname}) )
       
       for(let foto of this.fotos){
         try{
-          let response = await axios.get(`${store.backendUrl}fotos/${foto.id}`,{responseType: 'arraybuffer'})
+          let response = await axios.get(`fotos/${foto.id}`,{responseType: 'arraybuffer'})
           // @ts-ignore
           this.fotoImg = { ... this.fotoImg, [foto.id]: Buffer.from(response.data, 'binary').toString('base64') }
         }catch(e){console.error(e)}
@@ -150,7 +150,7 @@ tableColumns = [
     try{
       if(!id) throw 'no id'
       let foto = this.fotos[index]
-      let response = await axios.get(`${store.backendUrl}fotoinfo/${foto.id}`)
+      let response = await axios.get(`fotoinfo/${foto.id}`)
       this.fotos[index] = response.data
       // this.fotos.splice(index, 1, response.data )
       // @ts-ignore 
@@ -167,7 +167,7 @@ tableColumns = [
       if(!id) throw 'no id'
       let index = this.fotos.findIndex(foto=>foto.id==id)
       let foto = this.fotos[index]
-      let response = await axios.put(`${store.backendUrl}fotoinfo/${foto.id}`, foto)
+      let response = await axios.put(`fotoinfo/${foto.id}`, foto)
       this.fotos[index] = response.data
       // this.fotos.splice(index, 1, response.data )
       // @ts-ignore 

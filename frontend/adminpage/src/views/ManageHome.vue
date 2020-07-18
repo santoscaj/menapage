@@ -27,7 +27,7 @@ goToManagePage(albumDay){
 async created(){
 
   try{
-    let response = await axios.get(store.backendUrl+'albums')
+    let response = await axios.get('albums')
     this.albums = response.data
   }catch(e){console.error(e)}
 }
