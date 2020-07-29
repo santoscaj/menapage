@@ -374,8 +374,8 @@ export default class Collage extends Vue {
   transition: all 1.5s
 
 .caption
-  font-size: 2.5vh
-  line-height: 3vh
+  font-size: 3vh
+  line-height: 5vh
   color: salmon
   color: coral
   color: white
