@@ -1,17 +1,18 @@
 <template lang="pug">
 .manage-main
-  .table-container
+  .top
     .navigation
       Button.back( @click="goBack()" type="primary" size="large" icon="md-arrow-back")
       Button.back( @click="goHome()"  size="large" icon="md-grid")
       Button.forward( @click="goToNext()" type="primary" size="large" icon="md-arrow-forward")
     .search-bar
       Input(v-model="search" @click.native="clearSearch()")
+  .table-container
     Table.my-table(:columns="tableColumnsDynamic" :data="fotos")
       template( slot-scope="{row,index}" slot="filename" )
         span( :class="{selected: (validSearch && fotos[index].filename.includes(search))}" ) {{fotos[index].filename}}
       template( slot-scope="{row,index}" slot="position" )
-        input.position.no-border( v-model="fotos[index].position" )
+        input.position.no-border( @click="clearPosition(index)" v-model="fotos[index].position" )
       template( slot-scope="{row,index}" slot="date" )
         input.date.no-border( :class="{'wrong-date': wrongDate(fotos[index].date)}" v-model="fotos[index].date" )
       //- template( slot-scope="{row,index}" slot="name" )
@@ -61,6 +62,22 @@ tableColumns = [
       return this.tableColumns.filter(column=>['foto', 'filename', 'album'].includes(column.key))
     return this.tableColumns
   } 
+
+  clearPosition(index: number){
+    let idx = 0
+    for (let i of Array(20).keys()){
+      // @ts-ignore 
+      if(this.fotos.some(f=>f.position == i+1 ))
+        idx = i+2
+      else
+        break
+    }
+    console.log(idx)
+    // @ts-ignore 
+    if(this.fotos[index].position)
+      // @ts-ignore 
+      this.fotos[index].position = idx
+  }
 
   clearSearch(){
     this.search= ''
@@ -193,9 +210,16 @@ tableColumns = [
   height: 100vh
 
 .table-container
+  // display: flex
+  // flex-direction: column
   padding: 20px
   overflow: auto
   flex: 1 1 auto
+
+.top
+  position: sticky
+  padding: 20px
+  border: 1px solid gray
 
 .foto
   max-width: 100px
