@@ -72,7 +72,7 @@ tableColumns = [
       else
         break
     }
-    console.log(idx)
+    idx = (idx==0) ? 1 : idx
     // @ts-ignore 
     if(this.fotos[index].position)
       // @ts-ignore 
