@@ -5,8 +5,13 @@ const moment = require('moment')
 
 let LOG = false
 
-const sequelize = new Sequelize('menipage','postgres','berto',{
-    host: 'localhost',
+// const dbipaddr = 'localhost'
+const dbipaddr = 'database'
+const database = 'menipage';
+const username = 'postgres';
+const password = 'berto';
+const sequelize = new Sequelize(database,username,password,{
+    host: dbipaddr,
     dialect: 'postgres',
     logging: message=>{if(LOG) console.log(message)}
 })
@@ -51,8 +56,6 @@ async function addFakeMessages(){
   }catch(err){console.error(err)}
 }
 
-
-
 let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 function getDate(filename){
   try{
@@ -95,8 +98,6 @@ async function addAlbumsToDb(albums){
     }
   }
 }
-
-
 
 class Foto extends Model {}
 class Album extends Model {}
@@ -214,8 +215,8 @@ async function setup(){
 
 setup()
 
-;(async ()=>{
-  let data  = await Foto.findAll({where:{}, include: {model: Album, where:{day:11} }})
-  let cleanData = data.map(f=>f.filename)
-  dbAlbum = await Album.findOne({where:{day:11}, include:Foto})
-})()
+// ;(async ()=>{
+//   let data  = await Foto.findAll({where:{}, include: {model: Album, where:{day:11} }})
+//   let cleanData = data.map(f=>f.filename)
+//   dbAlbum = await Album.findOne({where:{day:11}, include:Foto})
+// })()

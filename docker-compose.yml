@@ -1,0 +1,53 @@
+version: "3.1"
+
+services:
+
+  database:
+    image: postgres:13
+    restart: unless-stopped
+    environment: 
+      POSTGRES_DB: menipage
+      POSTGRES_USER: postgres      
+      POSTGRES_PASSWORD: berto
+    networks:
+      - backend-network
+    volumes: 
+      - type: bind
+        source: ./database
+        target: /var/lib/postgresql/data
+    # ports:
+    #   - '5432:5432'
+
+  backend:
+    build: backend/
+    restart: unless-stopped
+    networks: 
+      - backend-network
+    depends_on: 
+      - database
+    ports:
+      - '3000:3000'
+  
+  # menapage: 
+  #   build: frontend/menapage
+  #   restart: unless-stopped
+  #   ports: 
+  #     - 8080:8080
+  #   networks:
+  #     - frontend-network
+  #   depends_on: 
+  #     - backend
+
+  # adminpage:
+  #   build: frontend/adminpage
+  #   restart: unless-stopped
+  #   ports: 
+  #     - 80:8080
+  #   networks: 
+  #     - frontend-network
+  #   depends_on: 
+  #     - backend
+
+networks:
+  backend-network:
+  # frontend-network:
