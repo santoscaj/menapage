@@ -12,4 +12,14 @@ module.exports = {
         msTileImage: 'img/icons/mstile-150x150.png'
       }
     },
+
+    devServer: {
+      // remove vue-cli-service's progress output
+      progress: false
+    }, 
+        
+    // chainWebpack: config => {
+    //   // remove vue-cli-service's progress output
+    //   config.plugins.delete('progress')
+    // },
   }

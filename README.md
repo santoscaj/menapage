@@ -6,6 +6,9 @@ To quickly test this project you can easily run:
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose-test.yml up
 ```
+> main page will be on port 80
+> admin page will be on port 8080
+> backend will be on port 80
 
 ## Installation
 1. You will need to properly set up your server with:
