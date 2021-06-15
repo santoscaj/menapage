@@ -10,10 +10,11 @@ const server = require('http').createServer(app)
 const io = require('socket.io')(server);
 const socketConnections  = require('./sockets')(io)
 
-let allowedOrigins = ['http://localhost:8080', 'https://santosaj.com',
-                    'https://gaminob.santosaj.com','http://gaminob.santosaj.com' ,
-                    'https://adminmenapage.santosaj.com','http://adminmenapage.santosaj.com'    
-					]
+let allowedOrigins = [
+    'http://localhost','http://localhost:8080','http://localhost:80', 
+    'https://santosaj.com', 'https://gaminob.santosaj.com','http://gaminob.santosaj.com' ,
+    'https://adminmenapage.santosaj.com','http://adminmenapage.santosaj.com'    
+	]
 
 app.use(bodyParser.json())
 app.use(cors({origin: function(origin, callback){
