@@ -9,8 +9,10 @@
   "dependencies": {
     "@types/node": "^14.0.19",
     "@types/socket.io-client": "^1.4.33",
+    "@vue/babel-preset-app": "^4.5.13",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dotenv": "^10.0.0",
     "emoji-mart-vue": "^2.6.6",
     "emoji-mart-vue-fast": "^7.0.2",
     "firebase": "^7.16.0",
@@ -30,10 +32,10 @@
     "vuex-class-component": "^2.3.4"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.4.0",
-    "@vue/cli-plugin-pwa": "^4.4.0",
-    "@vue/cli-plugin-typescript": "^4.4.0",
-    "@vue/cli-service": "^4.4.0",
+    "@vue/cli-plugin-babel": "^4.5.13",
+    "@vue/cli-plugin-pwa": "^4.5.13",
+    "@vue/cli-plugin-typescript": "^4.5.13",
+    "@vue/cli-service": "^4.5.13",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
     "sass": "^1.26.5",

@@ -8,8 +8,10 @@
   },
   "dependencies": {
     "@types/socket.io-client": "^1.4.33",
+    "@vue/babel-preset-app": "^4.5.13",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dotenv": "^10.0.0",
     "node-forge": "^0.10.0",
     "pug": "^3.0.0",
     "pug-plain-loader": "^1.0.0",
@@ -24,10 +26,10 @@
     "vuex-class-component": "^2.3.4"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.4.0",
-    "@vue/cli-plugin-pwa": "^4.4.0",
-    "@vue/cli-plugin-typescript": "^4.4.0",
-    "@vue/cli-service": "^4.4.0",
+    "@vue/cli-plugin-babel": "^4.5.13",
+    "@vue/cli-plugin-pwa": "^4.5.13",
+    "@vue/cli-plugin-typescript": "^4.5.13",
+    "@vue/cli-service": "^4.5.13",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "typescript": "~3.9.3",
