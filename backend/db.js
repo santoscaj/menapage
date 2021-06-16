@@ -41,6 +41,7 @@ async function createUsers(){
   try{
     await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', is_admin: true}})
     await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
+    await User.findOrCreate({where: {name: 'Visitor', alias: 'Visitor'}})
   }catch(err){console.error(err)}
 }
 
