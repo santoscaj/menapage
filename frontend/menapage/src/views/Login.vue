@@ -1,14 +1,19 @@
 <template lang="pug">
-  .main-div
-    .login-box( @keyup="checkEnter")
-      .credentials
-        p Username:
-        input.user-password( v-model="username")
-        p Password:
-        input.user-password( type="password" v-model="password")
-        .submit
-          Button.login-btn(type="primary" @click="login()")
-            p Login
+  .parent-div
+    .header-div
+      p Brenda Gamino & Alberto Santos
+    .main-div
+      //- .background
+      .background( :style="{ backgroundImage: 'url(' + require('@/assets/login3.jpg') + ')' }")
+      .login-box( @keyup="checkEnter")
+        .credentials
+          p Username:
+          input.user-password( v-model="username")
+          p Password:
+          input.user-password( type="password" v-model="password")
+          .submit
+            Button.login-btn(type="primary" @click="login()")
+              p Login
 </template>
 
 <script>
@@ -46,6 +51,7 @@ export default class ManagePage extends Vue {
     }
   }
 
+
   async mounted(){
   try{
     let response = await axios.get('users')
@@ -64,18 +70,52 @@ export default class ManagePage extends Vue {
 </script>
 
 <style lang="sass" scoped>
+
 *
   font-family: 'Open Sans', 'Comic Neue' cursive
 
+.parent-div
+  display: flex
+  flex-direction: column
+  width: 100%
+  height: 100%
+
+.header-div
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 11vh
+  font-size: 4.5vh
+  color: chocolate
+  background: lightorange
+  font-family: 'Ruthie', cursive
+  font-family: 'Lovers Quarrel', cursive
+  font-family: 'Dancing Script', cursive
+
 .main-div
+  position: relative
+  border-top: 1px solid darkorange
   display: flex
   align-items: center
   justify-content: center
   width: 100%
   height: 100%
 
+.background
+  width: 100%
+  height: 100%
+  position: absolute
+  z-index: 0
+  filter: blur(3px)
+  background-repeat: no-repeat 
+  background-position: 50% 50%
+  background-size: cover
+
 .login-box
+  border-radius: 5px
+  background: white
   width: 300px
+  z-index: 1
 
 .user-password, .user-password:focus
   width: 100%

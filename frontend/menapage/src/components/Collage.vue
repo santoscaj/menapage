@@ -28,8 +28,8 @@
           .caption 
             p {{foto.caption}}
             p.date {{foto.date}}
-  Messenger( v-model="showMessenger" @touchstart="touchToClick" :url="backendUrl")
-  button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
+  Messenger( v-if="!userIsGuest" v-model="showMessenger" @touchstart="touchToClick" :url="backendUrl")
+  button.circle-btn.messenger-btn( v-show="!rotate && !userIsGuest" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
     message-circle-icon
   button.circle-btn.logout-btn( @click="logout()" ) 
     log-out-icon
@@ -105,6 +105,10 @@ export default class Collage extends Vue {
 
   get user(){
     return store.user
+  }
+
+  get userIsGuest(){
+    return /visit/i.test(this.user.name)
   }
 
   touchToClick(e:any){
@@ -183,7 +187,7 @@ export default class Collage extends Vue {
   }
 
   get fotosToShow(){
-    return this.fotos.filter((f:Foto)=>!f.prize || this.showPrize)
+    return this.fotos.filter((f:Foto)=>!f.prize || (this.showPrize && !this.userIsGuest))
   }
 
   async getFotos(fotos : Foto[]){
