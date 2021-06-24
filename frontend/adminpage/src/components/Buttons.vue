@@ -60,7 +60,7 @@ export default class Collage extends Vue {
   }
 
   get userIsGuest(){
-    return /visit/i.test(store.user)
+    return /visit/i.test(store.user.name)
   }
 
   touchToClick(e:any){
