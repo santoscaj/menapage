@@ -11,7 +11,7 @@
     button.circle-btn.logout-btn( @click="carousel()" ) 
       image-icon
   .spacer
-  Tooltip( content="open chat" theme="dark" placement="top" )
+  Tooltip( v-if="!userIsGuest" content="open chat" theme="dark" placement="top" )
     button.circle-btn.messenger-btn( v-show="!rotate" @click="messengerOnOff()" @touch="messengerOnOff()" @touchstart="messengerOnOff()") 
       message-circle-icon
 </template>
@@ -57,6 +57,10 @@ export default class Collage extends Vue {
 
   get user(){
     return store.user
+  }
+
+  get userIsGuest(){
+    return /visit/i.test(store.user)
   }
 
   touchToClick(e:any){
