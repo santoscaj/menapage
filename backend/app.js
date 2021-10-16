@@ -30,6 +30,7 @@ app.use(cors({origin: function(origin, callback){
   }
 
 }))
+
 app.use(router)
 
 server.listen(3000)
