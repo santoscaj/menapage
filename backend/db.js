@@ -3,19 +3,64 @@ const { Sequelize, Model, DataTypes } = require('sequelize');
 const { setupMaster } = require('cluster');
 const moment = require('moment')
 
+const mongoose =require('mongoose')
+
 let LOG = false
 
-// const dbipaddr = 'localhost'
-const dbipaddr = 'database'
+const dbipaddr = 'localhost'
+// const dbipaddr = 'database'
 const database = 'menipage';
 const username = 'postgres';
 const password = 'berto';
-const sequelize = new Sequelize(database,username,password,{
-    host: dbipaddr,
-    dialect: 'postgres',
-    logging: message=>{if(LOG) console.log(message)}
+
+mongoose.connect(`mongodb://${dbipaddr}:27017/${database}`)
+
+const albumSchema = new mongoose.Schema({
+  name: String, 
+  day: Number,
+  fotos: [{
+    name: String, 
+    date: Date,
+    position: Number,
+    prize: Boolean,    
+    caption: String
+  }]
 })
 
+const Album = mongoose.model('Album', albumSchema)
+
+
+let albums = getDirectories('./images')
+
+async function findOrCreateAlbum(album){
+  let albumExists = await Album.exists({name: album.dirname})
+  if(!albumExists){
+    let fotos = album.fotos.reduce((arr, foto, idx)=>{
+      return [...arr, 
+        {
+          name: foto,
+          position: idx,
+          prize: Boolean(/prize/.test(foto))
+        }  ]
+    },[])
+    let newAlbum = new Album({
+      name: album.dirname, 
+      day: album.day,
+    })
+    newAlbum.fotos = fotos 
+    await newAlbum.save()
+  }
+  let foundAlbum = await Album.findOne({name: album.dirname})
+  return foundAlbum
+}
+
+async function addMongoAlbums(){
+  for (var album of albums){
+    await findOrCreateAlbum(album)
+  }
+}
+
+addMongoAlbums()
 
 function getDirectories(path) {
   let fotoAlbums = []
@@ -100,121 +145,59 @@ async function addAlbumsToDb(albums){
   }
 }
 
-class Foto extends Model {}
-class Album extends Model {}
 
-Album.init({
-  dirname: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  name: DataTypes.STRING, 
-  day: {
-    type: DataTypes.INTEGER, 
-    allowNull: false,
-  },
-}, { sequelize, modelName: 'album' });
+// class Message extends Model {}
+// class User extends Model {}
+
+// User.init({
+//   name: {
+//     type: DataTypes.STRING,
+//     allowNull: false
+//   },
+//   alias: DataTypes.STRING, 
+//   is_admin: {
+//     type: DataTypes.BOOLEAN,
+//     defaultValue: false
+//   },
+// }, { sequelize, modelName: 'user' });
     
 
-Foto.init({
-  filename: {
-      type: DataTypes.STRING,
-      allowNull: false
-  },
-  date: {
-    type: DataTypes.STRING,
-    defaultValue: ''
-  },
-  position: {
-    type: DataTypes.INTEGER,
-    defaultValue: 20
-  },
-  // visited: {
-  //     type: DataTypes.BOOLEAN,
-  //     defaultValue: false
-  // },
-  prize: {
-    type: DataTypes.BOOLEAN, 
-    defaultValue: false,
-  },    
-  album_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false, 
-    onDelete: 'CASCADE',
-    references: {
-        model: Album, 
-        key: 'id'
-    }
-  },
-  caption: {
-    type: DataTypes.STRING, 
-    defaultValue: '' 
-  }
-}, { sequelize, modelName: 'foto' }
-);
+// Message.init({
+//   content: {
+//       type: DataTypes.STRING,
+//       allowNull: false
+//   },
+//   user_id: {
+//     type: DataTypes.INTEGER,
+//     allowNull: false, 
+//     onDelete: 'CASCADE',
+//     references: {
+//         model: User, 
+//         key: 'id'
+//     }
+//   },
+//   is_delivered: {
+//     type: DataTypes.BOOLEAN,
+//     defaultValue: false
+//   },
+//   is_read: {
+//     type: DataTypes.BOOLEAN,
+//     defaultValue: false
+//   },
+// }, { sequelize, modelName: 'message' }
+// );
 
-Foto.Album = Foto.belongsTo(Album, {foreignKey: 'album_id', constraints: false});
-Album.Fotos = Album.hasMany(Foto, {foreignKey: 'album_id', constraints: false});
+// module.exports = {Foto, Album, Sequelize, sequelize, Message, User}
 
 
-class Message extends Model {}
-class User extends Model {}
+// async function setup(){
+//   await sequelize.sync()
+//   await addAlbumsToDb(albums)
+//   await createUsers()
+//   // await addFakeMessages()
+// }
 
-User.init({
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  alias: DataTypes.STRING, 
-  is_admin: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-}, { sequelize, modelName: 'user' });
-    
-
-Message.init({
-  content: {
-      type: DataTypes.STRING,
-      allowNull: false
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false, 
-    onDelete: 'CASCADE',
-    references: {
-        model: User, 
-        key: 'id'
-    }
-  },
-  is_delivered: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  is_read: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-}, { sequelize, modelName: 'message' }
-);
-
-
-Message.User = Message.belongsTo(User, {foreignKey: 'user_id', constraints: false});
-User.Messages = User.hasMany(Message, {foreignKey: 'user_id', constraints: false});
-
-module.exports = {Foto, Album, Sequelize, sequelize, Message, User}
-
-
-let albums = getDirectories('./images')
-
-async function setup(){
-  await sequelize.sync()
-  await addAlbumsToDb(albums)
-  await createUsers()
-  // await addFakeMessages()
-}
-
-setup()
+// setup()
 
 // ;(async ()=>{
 //   let data  = await Foto.findAll({where:{}, include: {model: Album, where:{day:11} }})
