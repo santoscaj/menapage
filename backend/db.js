@@ -27,8 +27,15 @@ const albumSchema = new mongoose.Schema({
   }]
 })
 
-const Album = mongoose.model('Album', albumSchema)
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true, index: { unique: true } },
+  password: { type: String, required: true },
+  alias: String,
+  guest: {type: Boolean, default: false}
+})
 
+const Album = mongoose.model('Album', albumSchema)
+const User =  mongoose.model('User', userSchema)
 
 let albums = getDirectories('./images')
 
@@ -82,25 +89,25 @@ function getDirectories(path) {
   return fotoAlbums
 }
 
-async function createUsers(){
-  try{
-    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', is_admin: true}})
-    await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
-    await User.findOrCreate({where: {name: 'Visitor', alias: 'Visitor'}})
-  }catch(err){console.error(err)}
-}
+// async function createUsers(){
+//   try{
+//     await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', is_admin: true}})
+//     await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
+//     await User.findOrCreate({where: {name: 'Visitor', alias: 'Visitor'}})
+//   }catch(err){console.error(err)}
+// }
 
 
-async function addFakeMessages(){
-  try{
-    await Message.findOrCreate({where: {content: 'Hi', user_id: 1}})
-    await Message.findOrCreate({where: {content: 'Hello there', user_id: 2}})
-    await Message.findOrCreate({where: {content: 'I will test emojis', user_id: 1}})
-    await Message.findOrCreate({where: {content: 'Emoji test ✌', user_id: 1}})
-    await Message.findOrCreate({where: {content: 'Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto', user_id: 2}})
-    await Message.findOrCreate({where: {content: 'I will test longer texts: Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto, California. The company specializes in electric vehicle manufacturing, battery energy storage from home ', user_id: 1}})
-  }catch(err){console.error(err)}
-}
+// async function addFakeMessages(){
+//   try{
+//     await Message.findOrCreate({where: {content: 'Hi', user_id: 1}})
+//     await Message.findOrCreate({where: {content: 'Hello there', user_id: 2}})
+//     await Message.findOrCreate({where: {content: 'I will test emojis', user_id: 1}})
+//     await Message.findOrCreate({where: {content: 'Emoji test ✌', user_id: 1}})
+//     await Message.findOrCreate({where: {content: 'Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto', user_id: 2}})
+//     await Message.findOrCreate({where: {content: 'I will test longer texts: Tesla, Inc. is an American electric vehicle and clean energy company based in Palo Alto, California. The company specializes in electric vehicle manufacturing, battery energy storage from home ', user_id: 1}})
+//   }catch(err){console.error(err)}
+// }
 
 let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 function getDate(filename){
@@ -121,29 +128,29 @@ function getPrize(filename){
   return /prize/.test(filename)
 }
 
-async function addAlbumsToDb(albums){
-  printedAlready = false
-  for (let album of albums){
-    try{
-      let {dirname, day} = album
-      let dbAlbum = await Album.findOrCreate({where:{ dirname, day }})
-      for(let foto of album.fotos){
-        let date = getDate(foto)
-        let prize = getPrize(foto)
-        if(prize)
-          await Foto.findOrCreate({where:{date, prize, caption: 'Surprise picture of the day' , filename:foto, album_id: dbAlbum[0].id}})
-        else
-          await Foto.findOrCreate({where:{date, prize, filename:foto, album_id: dbAlbum[0].id}})
-      }
-    }catch(err){
-      if(err.message=='Validation error' && !printedAlready){
-        console.log('One or more default users have been modified')
-        printedAlready =true
-      }else if(err.message!='Validation error')
-        console.error(err.message)
-    }
-  }
-}
+// async function addAlbumsToDb(albums){
+//   printedAlready = false
+//   for (let album of albums){
+//     try{
+//       let {dirname, day} = album
+//       let dbAlbum = await Album.findOrCreate({where:{ dirname, day }})
+//       for(let foto of album.fotos){
+//         let date = getDate(foto)
+//         let prize = getPrize(foto)
+//         if(prize)
+//           await Foto.findOrCreate({where:{date, prize, caption: 'Surprise picture of the day' , filename:foto, album_id: dbAlbum[0].id}})
+//         else
+//           await Foto.findOrCreate({where:{date, prize, filename:foto, album_id: dbAlbum[0].id}})
+//       }
+//     }catch(err){
+//       if(err.message=='Validation error' && !printedAlready){
+//         console.log('One or more default users have been modified')
+//         printedAlready =true
+//       }else if(err.message!='Validation error')
+//         console.error(err.message)
+//     }
+//   }
+// }
 
 
 // class Message extends Model {}
