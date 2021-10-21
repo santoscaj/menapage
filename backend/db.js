@@ -7,8 +7,8 @@ const mongoose =require('mongoose')
 
 let LOG = false
 
-const dbipaddr = 'localhost'
-// const dbipaddr = 'database'
+// const dbipaddr = 'localhost'
+const dbipaddr = 'database'
 const database = 'menipage';
 const username = 'postgres';
 const password = 'berto';

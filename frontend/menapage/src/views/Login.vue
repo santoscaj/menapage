@@ -54,7 +54,7 @@ export default class ManagePage extends Vue {
     if(!this.username) return Message.error('No username provided')
     if(!this.password) return Message.error('No password provided')
     
-    let user = checkCredentials(this.username, this.password, this.users)
+    let user = checkCredentials(this.username, this.password)
 
     if(!user)
       return Message.error('Wrong username or password')
@@ -65,19 +65,6 @@ export default class ManagePage extends Vue {
       this.$router.push({name:'Home'})
     }
   }
-
-
-  async mounted(){
-  try{
-    let response = await axios.get('users')
-    this.users = response.data
-  }catch(err){console.error(err)}
-    // try{
-    //   let response = await axios.get(`http://localhost:3000/album_of_the_day/0`)
-    //   this.backgroundFotos = response.data
-    // }catch(err){console.error(err)}
-  }
-
 }
 
 

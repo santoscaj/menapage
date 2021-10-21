@@ -3,18 +3,28 @@ version: "3.1"
 services:
 
   database:
-    image: postgres:13
+    image: mongo:5
     restart: unless-stopped
-    environment: 
-      POSTGRES_DB: menipage
-      POSTGRES_USER: postgres      
-      POSTGRES_PASSWORD: berto
     networks:
       - backend-network
-    volumes: 
+    volumes:
       - type: bind
         source: ./database
-        target: /var/lib/postgresql/data
+        target: /data/db
+
+  # database:
+  #   image: postgres:13
+  #   restart: unless-stopped
+  #   environment: 
+  #     POSTGRES_DB: menipage
+  #     POSTGRES_USER: postgres      
+  #     POSTGRES_PASSWORD: berto
+  #   networks:
+  #     - backend-network
+  #   volumes: 
+  #     - type: bind
+  #       source: ./database
+  #       target: /var/lib/postgresql/data
 
   backend:
     build: backend/
