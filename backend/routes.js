@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const {Album, User} = require('./db')
+const bcrypt = require('bcryptjs')
 
 router.get('/fotos/:id', async (req, res)=>{
     if(!req.params.id) res.sendStatus(401)
@@ -47,6 +48,27 @@ router.put('/fotoinfo/:id', async (req, res)=>{
 //     if(!user) res.sendStatus(404)
 //     res.json(user)
 // })
+
+router.post('/login', async (req, res)=>{
+    let userData = req.body
+    try{
+      let dbUser = await User.findOne({$or: [
+        {name: userData.username},
+        {alias: userData.username}
+      ]})
+  
+      if(!dbUser)
+        return res.sendStatus(404)
+      if(!bcrypt.compareSync(userData.password,dbUser.password))
+        return res.sendStatus(401)
+    //   let accessToken = jwt.sign({id: dbUser.id}, process.env.ACCESS_TOKEN_SECRET)
+      let {name, alias, guest} = dbUser
+      res.status(200).send({auth:true, user: {name,alias,guest}})
+    }catch(e){  
+      console.error(e)
+      return res.sendStatus(500)
+    }
+})
 
 router.get('/albums', async (req, res)=>{
     try{

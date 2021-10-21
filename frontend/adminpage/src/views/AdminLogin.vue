@@ -17,7 +17,7 @@ import ManageTable from '@/components/ManageTable.vue'
 import {Vue, Component} from 'vue-property-decorator'
 import {Message} from 'view-design'
 import axios from 'axios'
-import {checkCredentials} from '@/utils/internal.ts'
+// import {checkCredentials} from '@/utils/internal.ts'
 import store from '@/store'
 
 @Component({components:{ManageTable}})
@@ -30,6 +30,23 @@ export default class ManagePage extends Vue {
     if(e.keyCode==13)
       this.login()
   }
+
+  async checkCredentials(username, password){
+    try{
+        let response = await axios.post('login', {username, password})
+
+        let user  = response.data.user
+        return user      
+      }catch(e){
+        if(e.response && (e.response.status == 401 || e.response.status == 404))
+          Message.error('Please check username and password')
+        else
+          Message.error('couldnt login')
+        console.error('status',e.response.status)
+        return null
+    }
+  }
+
 
   login(){
     if(!this.username) return Message.error('No username provided')
