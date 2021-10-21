@@ -1,14 +1,14 @@
 const express = require('express')
 const app = express()
 const router = require('./routes')
-const db = require('./db')
+// const db = require('./db')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
 
 const server = require('http').createServer(app)
-const io = require('socket.io')(server);
-const socketConnections  = require('./sockets')(io)
+// const io = require('socket.io')(server);
+// const socketConnections  = require('./sockets')(io)
 
 let allowedOrigins = [
     'http://localhost','http://localhost:8080','http://localhost:80', 

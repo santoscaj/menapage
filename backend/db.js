@@ -1,6 +1,6 @@
 const fs = require('fs')
-const { Sequelize, Model, DataTypes } = require('sequelize');
-const { setupMaster } = require('cluster');
+// const { Sequelize, Model, DataTypes } = require('sequelize');
+// const { setupMaster } = require('cluster');
 const moment = require('moment')
 
 const mongoose =require('mongoose')
@@ -16,10 +16,12 @@ const password = 'berto';
 mongoose.connect(`mongodb://${dbipaddr}:27017/${database}`)
 
 const albumSchema = new mongoose.Schema({
-  name: String, 
+  id: {type: Number, required: true, unique: true, immutable: true},
+  dirname: String, 
   day: Number,
   fotos: [{
-    name: String, 
+    id: {type: Number, required: true, unique: true, immutable: true}, 
+    filename: String, 
     date: Date,
     position: Number,
     prize: Boolean,    
@@ -39,19 +41,21 @@ const User =  mongoose.model('User', userSchema)
 
 let albums = getDirectories('./images')
 
-async function findOrCreateAlbum(album){
-  let albumExists = await Album.exists({name: album.dirname})
+async function findOrCreateAlbum(album,albumID){
+  let albumExists = await Album.exists({dirname: album.dirname})
   if(!albumExists){
     let fotos = album.fotos.reduce((arr, foto, idx)=>{
       return [...arr, 
         {
-          name: foto,
+          id:((idx+1)+albumID*100),
+          filename: foto,
           position: idx,
           prize: Boolean(/prize/.test(foto))
         }  ]
     },[])
     let newAlbum = new Album({
-      name: album.dirname, 
+      id: albumID,
+      dirname: album.dirname, 
       day: album.day,
     })
     newAlbum.fotos = fotos 
@@ -62,8 +66,8 @@ async function findOrCreateAlbum(album){
 }
 
 async function addMongoAlbums(){
-  for (var album of albums){
-    await findOrCreateAlbum(album)
+  for (var i in albums){
+    await findOrCreateAlbum(albums[i],1+Number(i))
   }
 }
 
@@ -124,9 +128,9 @@ function getDate(filename){
   }
 }
 
-function getPrize(filename){
-  return /prize/.test(filename)
-}
+// function getPrize(filename){
+//   return /prize/.test(filename)
+// }
 
 // async function addAlbumsToDb(albums){
 //   printedAlready = false
@@ -195,7 +199,7 @@ function getPrize(filename){
 // );
 
 // module.exports = {Foto, Album, Sequelize, sequelize, Message, User}
-
+module.exports = {Album, User}
 
 // async function setup(){
 //   await sequelize.sync()
