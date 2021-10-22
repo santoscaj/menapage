@@ -29,6 +29,7 @@ export default class ManagePage extends Vue {
   username=''
   password=''
   users = []
+  requestInProgress = false
 
   checkEnter(e){
     if(e.keyCode==13)
@@ -50,17 +51,20 @@ export default class ManagePage extends Vue {
     }
   }
 
-  login(){
+  async login(){
+    if(this.requestInProgress) return
     if(!this.username) return Message.error('No username provided')
     if(!this.password) return Message.error('No password provided')
     
-    let user = checkCredentials(this.username, this.password)
+    this.requestInProgress = true
+    let user = await this.checkCredentials(this.username, this.password)
+    this.requestInProgress = false
 
     if(!user)
       return Message.error('Wrong username or password')
     
     store.setUser(user)
-    if(user.id){
+    if(user.name){
       localStorage.setItem('user', JSON.stringify(user))
       this.$router.push({name:'Home'})
     }

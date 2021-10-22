@@ -133,7 +133,7 @@ tableColumns = [
     try{
       let response = await axios.get(`fotos_of_the_day/${this.albumDay}`)
       // @ts-ignore 
-      this.fotos = response.data.map(foto=>({ ...foto, album: foto.album.dirname}) )
+      this.fotos = response.data
       
       for(let foto of this.fotos){
         try{

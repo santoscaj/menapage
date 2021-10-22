@@ -62,8 +62,8 @@ router.post('/login', async (req, res)=>{
       if(!bcrypt.compareSync(userData.password,dbUser.password))
         return res.sendStatus(401)
     //   let accessToken = jwt.sign({id: dbUser.id}, process.env.ACCESS_TOKEN_SECRET)
-      let {name, alias, guest} = dbUser
-      res.status(200).send({auth:true, user: {name,alias,guest}})
+      let {id, name, alias, guest} = dbUser
+      res.status(200).send({auth:true, user: { id, name,alias,guest}})
     }catch(e){  
       console.error(e)
       return res.sendStatus(500)
@@ -115,7 +115,7 @@ router.get('/fotos_of_the_day/:day', async (req, res)=>{
     let fotoAlbum = await Album.findOne({day:req.params.day},['fotos'])
     // fotos = await Foto.findAll({where:{}, order:['position'], include: {model: Album, where:{day:req.params.day} }})
     if(!fotoAlbum || !fotoAlbum.fotos.length) return res.sendStatus(404)
-    let fotos = fotoAlbum.fotos.sort((a,b)=>a.position - b.position )
+    let fotos = fotoAlbum.fotos.map(foto=>({...foto, album:fotoAlbum.dirname})).sort((a,b)=>a.position - b.position )
     res.json(fotos)
 })
 

@@ -8,7 +8,7 @@ COPY . .
 
 EXPOSE 8080
 
-RUN npm install \
+RUN npm install -f \
     && npm ls \
     && npm cache clean --force
 

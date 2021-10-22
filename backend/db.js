@@ -30,6 +30,7 @@ const albumSchema = new mongoose.Schema({
 })
 
 const userSchema = new mongoose.Schema({
+  id: {type: Number, required: true, unique: true, immutable: true},
   name: { type: String, required: true, index: { unique: true } },
   password: { type: String, required: true },
   alias: String,
