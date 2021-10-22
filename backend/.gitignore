@@ -16,3 +16,6 @@ test/*.log
 
 #project files
 .env
+
+
+dbDefaults.js

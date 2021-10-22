@@ -134,7 +134,8 @@ tableColumns = [
       let response = await axios.get(`fotos_of_the_day/${this.albumDay}`)
       // @ts-ignore 
       this.fotos = response.data
-      
+      console.log('response ', response)
+      console.log('fotos ', this.fotos)
       for(let foto of this.fotos){
         try{
           let response = await axios.get(`fotos/${foto.id}`,{responseType: 'arraybuffer'})

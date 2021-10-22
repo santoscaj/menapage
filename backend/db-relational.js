@@ -60,7 +60,7 @@ async function addFakeMessages(){
 let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 function getDate(filename){
   try{
-    let date = filename.match(/[_-]\d{8}[_-]/) || filename.match(/\d{8}/) || filename.match(/\d{4}-\d{2}-\d{2}/) 
+    let date = filename.match(/[_-]\d{8}[_-]/) || filename.match(/\d{8}/) || filename.match(/\d{4}-\d{2}-\d{2}/)  || 'Invalid Date'
     if(!date) return 'invalid date'
     date = date[0].replace(/[-_]/g, '')
     let y = date.substr(0,4), m = Number(date.substr(4,2)-1), d = date.substr(6,2)

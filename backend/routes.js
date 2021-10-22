@@ -28,7 +28,11 @@ router.put('/fotoinfo/:id', async (req, res)=>{
         // let dbFoto = await Foto.update(req.body, {where:{id:req.params.id}})
         let dbFoto = Album.findOneAndUpdate( 
             { "fotos.id" : req.params.id },
-            {'fotos.$[element].name': 'yay'},
+            {
+                'fotos.$[element].position' : req.body.position,
+                'fotos.$[element].date' : req.body.date,
+                'fotos.$[element].caption' : req.body.caption
+            },
             {arrayFilters: [{ 'element.id': req.params.id }]}
             )
         if(!dbFoto) return res.sendStatus(404)
@@ -109,14 +113,17 @@ router.get('/album_of_the_day/:day', async (req, res)=>{
     res.json(dbAlbum)
 })
 
-
 router.get('/fotos_of_the_day/:day', async (req, res)=>{
     if(!req.params.day) return res.sendStatus(401)
-    let fotoAlbum = await Album.findOne({day:req.params.day},['fotos'])
+    let fotoAlbum = await Album.findOne({day:req.params.day})
     // fotos = await Foto.findAll({where:{}, order:['position'], include: {model: Album, where:{day:req.params.day} }})
     if(!fotoAlbum || !fotoAlbum.fotos.length) return res.sendStatus(404)
-    let fotos = fotoAlbum.fotos.map(foto=>({...foto, album:fotoAlbum.dirname})).sort((a,b)=>a.position - b.position )
+    let fotos = fotoAlbum.fotos.sort((a,b)=>a.position - b.position ).map(foto=>{
+        let {id, filename, position, prize} = foto
+        return {id, filename, position, prize, album: fotoAlbum.dirname}
+    })
     res.json(fotos)
 })
+
 
 module.exports = router
