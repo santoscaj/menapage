@@ -5,6 +5,7 @@ axios = require('axios')
 activeSockets = []
 
 let googleFirebaseApi = 'https://fcm.googleapis.com/fcm/send'
+let lastMessageId = 0
 
 async function sendNotification(list, title, body){
     for(let destination of list){
@@ -27,6 +28,13 @@ async function sendNotification(list, title, body){
       }
 }
 
+
+async function setCurrentMessageId(){
+    let allMessages = await Message.find({})
+    lastMessageId = (allMessages.reduce((max, current)=>Math.max(max, current.id), 0))+1
+    console.log('setting last message id', lastMessageId, allMessages)
+}
+setCurrentMessageId()
 
 async function notifyMessage(messageSender, message){
   let body = message.content
@@ -67,7 +75,17 @@ module.exports =  function(io){
         }
 
         try{
-            let messages = await Message.findAll({include:[User]})
+            let messages = await Message.find({})
+            let usersObj = {}
+            let users = await User.find({})
+            users.forEach(user=>{
+                let {name, id, guest, alias} = user
+                usersObj[user.id] = {name, id, guest, alias} 
+            })
+            messages = messages.map(message=>{
+                let {id, content, datetime, user_id, is_read, is_delivered} = message
+                return {id, content, datetime, user_id, is_read, is_delivered, user: usersObj[message.user_id] } 
+            })
             socket.emit('history', messages)
         }catch(err){
             console.log(err)    
@@ -102,11 +120,19 @@ module.exports =  function(io){
                 return
 
             try{
-                let dbMessage = await Message.create({...data})
-                let newMessage = await Message.findOne({where:{id:dbMessage.id}, include: User})
+                // let {content, user_id} = data
+                let newMessage = new Message({...data, datetime: new Date(), id: lastMessageId++ })
+                await newMessage.save()
+                let dbMessage = await Message.findOne({id:lastMessageId-1})
+                if(!dbMessage) socket.emit('error', 'Message was not found')
+                let dbMessageUser = await User.findOne({id:dbMessage.user_id})
+                if(!dbMessageUser) socket.emit('error', 'Owner of message was not found')
+                
+                let {id, content, datetime, user_id, is_read, is_delivered} = dbMessage
+                let messageToSend = {id, content, datetime, user_id, is_read, is_delivered, user:dbMessageUser}
                 io.emit('successmessage')
-                io.emit('newmessage', newMessage)
-                notifyMessage(socket.user, newMessage)
+                io.emit('newmessage', messageToSend)
+                notifyMessage(socket.user, messageToSend)
             }catch(err){
                 socket.emit('errormessage', err)
                 console.error(err)

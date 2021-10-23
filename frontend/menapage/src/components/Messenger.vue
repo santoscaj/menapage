@@ -180,12 +180,13 @@ mounted(){
   socket.on('history', ( data : any )=>{
     this.messages = data.map( (x:any)=>{
       let img = `@/assets/faceicons/Berto/0.jpg`
-      let datetime = new Date('2020-07-17T22:37:45.234Z').toLocaleString("en-US", {timeZone: "Canada/Eastern"})
+      let datetime = new Date(x.datetime).toLocaleString("en-US", {timeZone: "Canada/Eastern"})
       return {...x, datetime, img}
   })});
   socket.on('newmessage', ( data : any )=>{
-    let datetime = new Date('2020-07-17T22:37:45.234Z').toLocaleString("en-US", {timeZone: "Canada/Eastern"}) 
-    this.messages.push({...data, datetime})
+    let message = data
+    message.datetime = new Date(message.datetime)
+    this.messages.push(message)
   })
   
   socket.on('errormessage', ()=>{
