@@ -8,10 +8,7 @@ let LOG = false
 // const dbipaddr = 'localhost'
 const dbipaddr = 'database'
 const database = 'menipage';
-const username = 'postgres';
-const password = 'berto';
 
-const debug = false
 
 const logger = (message)=>{
   // if(debug)
@@ -48,7 +45,8 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true, index: { unique: true } },
   password: { type: String, required: true },
   alias: String,
-  guest: {type: Boolean, default: false}
+  guest: {type: Boolean, default: true},
+  admin: {type: Boolean, default: false}
 })
 
 const Album = mongoose.model('Album', albumSchema)

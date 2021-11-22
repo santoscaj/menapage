@@ -108,7 +108,7 @@ export default class Collage extends Vue {
   }
 
   get userIsGuest(){
-    return /visit/i.test(this.user.name)
+    return this.user.guest
   }
 
   touchToClick(e:any){
@@ -125,8 +125,6 @@ export default class Collage extends Vue {
 
   logout(){
     store.logout()
-    // localStorage.clear()
-    localStorage.removeItem('user')
     this.$router.push({name:'Login'})
   }
 

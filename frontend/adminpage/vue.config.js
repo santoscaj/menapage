@@ -6,7 +6,8 @@ module.exports = {
     
     devServer: {
       // remove vue-cli-service's progress output
-      progress: false
+      progress: false,
+      port: 8000,
     }, 
 
     // configureWebpack: {

@@ -32,7 +32,6 @@ async function sendNotification(list, title, body){
 async function setCurrentMessageId(){
     let allMessages = await Message.find({})
     lastMessageId = (allMessages.reduce((max, current)=>Math.max(max, current.id), 0))+1
-    console.log('setting last message id', lastMessageId, allMessages)
 }
 setCurrentMessageId()
 

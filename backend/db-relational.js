@@ -39,7 +39,7 @@ function getDirectories(path) {
 
 async function createUsers(){
   try{
-    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', is_admin: true}})
+    await User.findOrCreate({where: {name: 'Alberto Santos', alias: 'Berto', admin: true}})
     await User.findOrCreate({where: {name: 'Brenda Gamino', alias: 'Meni'}})
     await User.findOrCreate({where: {name: 'Visitor', alias: 'Visitor'}})
   }catch(err){console.error(err)}
@@ -166,7 +166,7 @@ User.init({
     allowNull: false
   },
   alias: DataTypes.STRING, 
-  is_admin: {
+  admin: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },

@@ -2,13 +2,13 @@
   //- transition( name="messenger-fade")
   .messenger(v-show="value" )
     .title( @click="stopShowing()" @touchstart.prevent="stopShowing()" @touch="stopShowing()") 
-      p Talk to Berto anytime anywhere
+      p Messenger
       x-icon
     //- .wrapper
     .chat-log( ref="chat" @click="showEmoji=false")
       .message(v-for="message in messages" :class="{'my-message': activeUser.id == message.user.id }" :key="message.id") 
         img.avatar( v-if="showAvatar && message.user.alias =='Berto'" src="@/assets/faceicons/Berto/8.jpg" :alt="message.user.name.charAt(0)")
-        img.avatar( v-if="showAvatar && message.user.alias =='Meni'" src="@/assets/faceicons/Meni/4.jpg" :alt="message.user.name.charAt(0)")
+        img.avatar( v-if="showAvatar && message.user.alias =='Mena'" src="@/assets/faceicons/Meni/4.jpg" :alt="message.user.name.charAt(0)")
         .message-area
           .top-message
             p

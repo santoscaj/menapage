@@ -93,8 +93,6 @@ router.get('/fotoinfo', async (req, res)=>{
     res.json(foto)
 })
 
-
-
 router.get('/fotoinfo/:id', async (req, res)=>{
     if(!req.params.id) return res.sendStatus(400)
     // let foto = await Foto.findOne({where:{id: req.params.id}})

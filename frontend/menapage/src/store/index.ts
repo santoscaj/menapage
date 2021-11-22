@@ -9,11 +9,12 @@ interface User {
   id  :  number
   name: string
   alias: string
-  is_admin: boolean
+  guest: boolean
+  admin: boolean
 }
 
 function getEmptyUser(){
-  return {id:0, name:'', alias:'', is_admin:false}
+  return {id:0, name:'', alias:'', admin:false, guest: true}
 }
 
 Vue.use(Vuex)

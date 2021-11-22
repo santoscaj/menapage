@@ -25,7 +25,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next)=>{
-  let loginUserId : number = store.user.id || (JSON.parse(localStorage.getItem('user') || '{"id":0}').id)  
+  let loginUserId : number = store.user.id  
   if(to.name==from.name)
     next(false)
   else if(!loginUserId && to.name!='Login')

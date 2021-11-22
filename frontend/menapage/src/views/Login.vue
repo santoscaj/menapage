@@ -65,7 +65,6 @@ export default class ManagePage extends Vue {
     
     store.setUser(user)
     if(user.name){
-      localStorage.setItem('user', JSON.stringify(user))
       this.$router.push({name:'Home'})
     }
   }

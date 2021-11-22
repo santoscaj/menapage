@@ -9,12 +9,6 @@ import store from '@/store'
 
 @Component({})
 export default class App extends Vue {
-  beforeCreate(){
-    let user = localStorage.getItem('user')
-
-    if(user)
-      store.setUser(JSON.parse(user))
-  }
 
 }
 </script>
